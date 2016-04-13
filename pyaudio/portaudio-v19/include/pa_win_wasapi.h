@@ -210,6 +210,7 @@ typedef struct PaWasapiStreamInfo
     unsigned long version;          /**< 1 */
 
     unsigned long flags;            /**< collection of PaWasapiFlags */
+    unsigned long streamFlags;            /**< collection of PaWasapiFlags */
 
     /* Support for WAVEFORMATEXTENSIBLE channel masks. If flags contains
        paWinWasapiUseChannelMask this allows you to specify which speakers 
