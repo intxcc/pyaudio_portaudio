@@ -49,6 +49,16 @@
 #include <assert.h>
 #include <mmsystem.h>
 #include <mmreg.h>  // must be before other Wasapi headers
+
+#define COBJMACROS
+#include <Audioclient.h>
+#include <endpointvolume.h>
+#define INITGUID
+#include <Functiondiscoverykeys_devpkey.h>
+#include <mmdeviceapi.h>
+#include <devicetopology.h>
+#undef INITGUID
+
 #if defined(_MSC_VER) && (_MSC_VER >= 1400)
 	#include <Avrt.h>
 	#define COBJMACROS
@@ -56,7 +66,6 @@
 	#include <endpointvolume.h>
 	#define INITGUID // Avoid additional linkage of static libs, excessive code will be optimized out by the compiler
 	#include <mmdeviceapi.h>
-	#include <functiondiscoverykeys.h>
     #include <devicetopology.h>	// Used to get IKsJackDescription interface
 	#undef INITGUID
 #endif
@@ -77,14 +86,24 @@
 
 #include "pa_win_coinitialize.h"
 
+//#ifndef _AVRT_ //<< fix MinGW dummy compile by defining missing type: AVRT_PRIORITY
+    typedef enum _AVRT_PRIORITY
+    {
+        AVRT_PRIORITY_LOW = -1,
+        AVRT_PRIORITY_NORMAL,
+        AVRT_PRIORITY_HIGH,
+        AVRT_PRIORITY_CRITICAL
+    } AVRT_PRIORITY, *PAVRT_PRIORITY;
+//#endif
+
 #ifndef NTDDI_VERSION
- 
+
     #undef WINVER
     #undef _WIN32_WINNT
     #define WINVER       0x0600 // VISTA
 	#define _WIN32_WINNT WINVER
 
-	#ifndef _AVRT_ //<< fix MinGW dummy compile by defining missing type: AVRT_PRIORITY
+	//#ifndef _AVRT_ //<< fix MinGW dummy compile by defining missing type: AVRT_PRIORITY
         typedef enum _AVRT_PRIORITY
         {
             AVRT_PRIORITY_LOW = -1,
@@ -92,7 +111,7 @@
             AVRT_PRIORITY_HIGH,
             AVRT_PRIORITY_CRITICAL
         } AVRT_PRIORITY, *PAVRT_PRIORITY;
-	#endif
+	//#endif
 
 	#include <basetyps.h> // << for IID/CLSID
     #include <rpcsal.h>
@@ -134,18 +153,18 @@
         typedef LONGLONG REFERENCE_TIME;
         #define NONAMELESSUNION
     #endif
-    
+
     #ifndef WAVE_FORMAT_IEEE_FLOAT
         #define WAVE_FORMAT_IEEE_FLOAT 0x0003 // 32-bit floating-point
-    #endif    
-    
+    #endif
+
     #ifndef __MINGW_EXTENSION
         #if defined(__GNUC__) || defined(__GNUG__)
             #define __MINGW_EXTENSION __extension__
         #else
             #define __MINGW_EXTENSION
         #endif
-    #endif 
+    #endif
 
     #include <sdkddkver.h>
     #include <propkeydef.h>
@@ -154,7 +173,6 @@
     #include <audioclient.h>
     #include <mmdeviceapi.h>
     #include <endpointvolume.h>
-    #include <functiondiscoverykeys.h>
 	#include <devicetopology.h>	// Used to get IKsJackDescription interface
     #undef INITGUID
 
@@ -1043,6 +1061,20 @@ static MixMonoToStereoF _GetMonoToStereoMixer(PaSampleFormat format, EMixerDir d
 	return NULL;
 }
 
+wchar_t* wcsncpy (wchar_t* destination, const wchar_t* source, size_t num) {
+	size_t i;
+
+	for (i = 0; i < num && source[i] != 0; i++) {
+		destination[i] = source[i];
+	}
+
+	for ( ;i < num; i++) {
+		destination[i] = 0;
+	}
+
+	return destination;
+}
+
 // ------------------------------------------------------------------------------------------
 PaError PaWasapi_Initialize( PaUtilHostApiRepresentation **hostApi, PaHostApiIndex hostApiIndex )
 {
@@ -1065,7 +1097,7 @@ PaError PaWasapi_Initialize( PaUtilHostApiRepresentation **hostApi, PaHostApiInd
         result = paInsufficientMemory;
         goto error;
     }
-	
+
     memset( paWasapi, 0, sizeof(PaWasapiHostApiRepresentation) ); /* ensure all fields are zeroed. especially paWasapi->allocations */
 
     result = PaWinUtil_CoInitialize( paWASAPI, &paWasapi->comInitializationResult );
@@ -1092,7 +1124,7 @@ PaError PaWasapi_Initialize( PaUtilHostApiRepresentation **hostApi, PaHostApiInd
     paWasapi->enumerator = NULL;
     hr = CoCreateInstance(&pa_CLSID_IMMDeviceEnumerator, NULL, CLSCTX_INPROC_SERVER,
              &pa_IID_IMMDeviceEnumerator, (void **)&paWasapi->enumerator);
-    
+
 	// We need to set the result to a value otherwise we will return paNoError
 	// [IF_FAILED_JUMP(hResult, error);]
 	IF_FAILED_INTERNAL_ERROR_JUMP(hr, result, error);
@@ -1252,7 +1284,7 @@ PaError PaWasapi_Initialize( PaUtilHostApiRepresentation **hostApi, PaHostApiInd
 					if (value.pwszVal)
 						WideCharToMultiByte(CP_UTF8, 0, value.pwszVal, (int)wcslen(value.pwszVal), deviceName, MAX_STR_LEN-1, 0, 0);
 					else
-						_snprintf(deviceName, MAX_STR_LEN-1, "baddev%d", i);
+						snprintf(deviceName, MAX_STR_LEN-1, "baddev%d", i);//snprintf(deviceName, MAX_STR_LEN-1, "baddev%d", i);
                     deviceInfo->name = deviceName;
                     PropVariantClear(&value);
 					PA_DEBUG(("WASAPI:%d| name[%s]\n", i, deviceInfo->name));
@@ -1581,7 +1613,7 @@ static void LogWAVEFORMATEXTENSIBLE(const WAVEFORMATEXTENSIBLE *in)
 
 	case WAVE_FORMAT_PCM:        PRINT(("wFormatTag     =WAVE_FORMAT_PCM\n")); break;
 	case WAVE_FORMAT_IEEE_FLOAT: PRINT(("wFormatTag     =WAVE_FORMAT_IEEE_FLOAT\n")); break;
-	default: 
+	default:
 		PRINT(("wFormatTag     =UNKNOWN(%d)\n",old->wFormatTag)); break;
 	}
 
@@ -1707,7 +1739,7 @@ static PaError MakeWaveFormatFromParams(WAVEFORMATEXTENSIBLE *wavex, const PaStr
 			case 7:  wavex->dwChannelMask = KSAUDIO_SPEAKER_5POINT1_SURROUND|SPEAKER_BACK_CENTER; break;
 #else
 			case 7:  wavex->dwChannelMask = KSAUDIO_SPEAKER_5POINT1|SPEAKER_BACK_CENTER; break;
-#endif	
+#endif
 #ifdef KSAUDIO_SPEAKER_7POINT1_SURROUND
 			case 8:  wavex->dwChannelMask = KSAUDIO_SPEAKER_7POINT1_SURROUND; break;
 #else
@@ -1915,6 +1947,17 @@ static PaError GetClosestFormat(IAudioClient *myClient, double sampleRate,
 	return answer;
 }
 
+static int intendToUseLoopback(const  PaStreamParameters *inputParameters) {
+    if (inputParameters != NULL)
+    {
+		PaWasapiStreamInfo *inputStreamInfo = (PaWasapiStreamInfo *)inputParameters->hostApiSpecificStreamInfo;
+		int streamFlags  = (inputStreamInfo ? inputStreamInfo->streamFlags : 0);
+
+        return streamFlags;
+    }
+    return 0;
+}
+
 // ------------------------------------------------------------------------------------------
 static PaError IsStreamParamsValid(struct PaUtilHostApiRepresentation *hostApi,
                                    const  PaStreamParameters *inputParameters,
@@ -1939,7 +1982,7 @@ static PaError IsStreamParamsValid(struct PaUtilHostApiRepresentation *hostApi,
             return paInvalidDevice;
 
         /* check that input device can support inputChannelCount */
-        if (inputParameters->channelCount > hostApi->deviceInfos[ inputParameters->device ]->maxInputChannels)
+        if ((inputParameters->channelCount > hostApi->deviceInfos[ inputParameters->device ]->maxInputChannels) && (!intendToUseLoopback(inputParameters)))
             return paInvalidChannelCount;
 
         /* validate inputStreamInfo */
@@ -2694,7 +2737,7 @@ static PaError OpenStream( struct PaUtilHostApiRepresentation *hostApi,
         inputSampleFormat = inputParameters->sampleFormat;
 		inputStreamInfo   = (PaWasapiStreamInfo *)inputParameters->hostApiSpecificStreamInfo;
         info              = &paWasapi->devInfo[inputParameters->device];
-		stream->in.flags  = (inputStreamInfo ? inputStreamInfo->flags : 0);
+		stream->in.streamFlags = (inputStreamInfo ? inputStreamInfo->streamFlags : 0);
 
 		// Select Exclusive/Shared mode
 		stream->in.shareMode = AUDCLNT_SHAREMODE_SHARED;
@@ -2715,18 +2758,20 @@ static PaError OpenStream( struct PaUtilHostApiRepresentation *hostApi,
 		}
 
 		// Choose processing mode
-		stream->in.streamFlags = (stream->in.shareMode == AUDCLNT_SHAREMODE_EXCLUSIVE ? AUDCLNT_STREAMFLAGS_EVENTCALLBACK : 0);
+        unsigned long tmp_streamFlags = stream->in.streamFlags;
+
+		stream->in.streamFlags = (stream->in.shareMode == AUDCLNT_SHAREMODE_EXCLUSIVE ? AUDCLNT_STREAMFLAGS_EVENTCALLBACK : 0) | tmp_streamFlags;
 		if (paWasapi->useWOW64Workaround)
-			stream->in.streamFlags = 0; // polling interface
+			stream->in.streamFlags = tmp_streamFlags; // polling interface
 		else
 		if (streamCallback == NULL)
-			stream->in.streamFlags = 0; // polling interface
+			stream->in.streamFlags = tmp_streamFlags; // polling interface
 		else
 		if ((inputStreamInfo != NULL) && (inputStreamInfo->flags & paWinWasapiPolling))
-			stream->in.streamFlags = 0; // polling interface
+			stream->in.streamFlags = tmp_streamFlags; // polling interface
 		else
 		if (fullDuplex)
-			stream->in.streamFlags = 0; // polling interface is implemented for full-duplex mode also
+			stream->in.streamFlags = tmp_streamFlags; // polling interface is implemented for full-duplex mode also
 
 		// Fill parameters for Audio Client creation
 		stream->in.params.device_info       = info;
@@ -3064,7 +3109,7 @@ static PaError CloseStream( PaStream* s )
 }
 
 // ------------------------------------------------------------------------------------------
-HRESULT UnmarshalSubStreamComPointers(PaWasapiSubStream *substream) 
+HRESULT UnmarshalSubStreamComPointers(PaWasapiSubStream *substream)
 {
 	HRESULT hResult = S_OK;
 	HRESULT hFirstBadResult = S_OK;
@@ -3073,7 +3118,7 @@ HRESULT UnmarshalSubStreamComPointers(PaWasapiSubStream *substream)
 	// IAudioClient
 	hResult = CoGetInterfaceAndReleaseStream(substream->clientStream, &pa_IID_IAudioClient, (LPVOID*)&substream->clientProc);
 	substream->clientStream = NULL;
-	if (hResult != S_OK) 
+	if (hResult != S_OK)
 	{
 		hFirstBadResult = (hFirstBadResult == S_OK) ? hResult : hFirstBadResult;
 	}
@@ -3082,7 +3127,7 @@ HRESULT UnmarshalSubStreamComPointers(PaWasapiSubStream *substream)
 }
 
 // ------------------------------------------------------------------------------------------
-HRESULT UnmarshalStreamComPointers(PaWasapiStream *stream) 
+HRESULT UnmarshalStreamComPointers(PaWasapiStream *stream)
 {
 	HRESULT hResult = S_OK;
 	HRESULT hFirstBadResult = S_OK;
@@ -3091,11 +3136,11 @@ HRESULT UnmarshalStreamComPointers(PaWasapiStream *stream)
 	stream->in.clientProc = NULL;
 	stream->out.clientProc = NULL;
 
-	if (NULL != stream->in.clientParent) 
+	if (NULL != stream->in.clientParent)
 	{
 		// SubStream pointers
 		hResult = UnmarshalSubStreamComPointers(&stream->in);
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 		{
 			hFirstBadResult = (hFirstBadResult == S_OK) ? hResult : hFirstBadResult;
 		}
@@ -3103,17 +3148,17 @@ HRESULT UnmarshalStreamComPointers(PaWasapiStream *stream)
 		// IAudioCaptureClient
 		hResult = CoGetInterfaceAndReleaseStream(stream->captureClientStream, &pa_IID_IAudioCaptureClient, (LPVOID*)&stream->captureClient);
 		stream->captureClientStream = NULL;
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 		{
 			hFirstBadResult = (hFirstBadResult == S_OK) ? hResult : hFirstBadResult;
 		}
 	}
 
-	if (NULL != stream->out.clientParent) 
+	if (NULL != stream->out.clientParent)
 	{
 		// SubStream pointers
 		hResult = UnmarshalSubStreamComPointers(&stream->out);
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 		{
 			hFirstBadResult = (hFirstBadResult == S_OK) ? hResult : hFirstBadResult;
 		}
@@ -3121,7 +3166,7 @@ HRESULT UnmarshalStreamComPointers(PaWasapiStream *stream)
 		// IAudioRenderClient
 		hResult = CoGetInterfaceAndReleaseStream(stream->renderClientStream, &pa_IID_IAudioRenderClient, (LPVOID*)&stream->renderClient);
 		stream->renderClientStream = NULL;
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 		{
 			hFirstBadResult = (hFirstBadResult == S_OK) ? hResult : hFirstBadResult;
 		}
@@ -3131,13 +3176,13 @@ HRESULT UnmarshalStreamComPointers(PaWasapiStream *stream)
 }
 
 // -----------------------------------------------------------------------------------------
-void ReleaseUnmarshaledSubComPointers(PaWasapiSubStream *substream) 
+void ReleaseUnmarshaledSubComPointers(PaWasapiSubStream *substream)
 {
 	SAFE_RELEASE(substream->clientProc);
 }
 
 // -----------------------------------------------------------------------------------------
-void ReleaseUnmarshaledComPointers(PaWasapiStream *stream) 
+void ReleaseUnmarshaledComPointers(PaWasapiStream *stream)
 {
 	// Release AudioClient services first
 	SAFE_RELEASE(stream->captureClient);
@@ -3149,7 +3194,7 @@ void ReleaseUnmarshaledComPointers(PaWasapiStream *stream)
 }
 
 // ------------------------------------------------------------------------------------------
-HRESULT MarshalSubStreamComPointers(PaWasapiSubStream *substream) 
+HRESULT MarshalSubStreamComPointers(PaWasapiSubStream *substream)
 {
 	HRESULT hResult;
 	substream->clientStream = NULL;
@@ -3170,7 +3215,7 @@ marshal_sub_error:
 }
 
 // ------------------------------------------------------------------------------------------
-HRESULT MarshalStreamComPointers(PaWasapiStream *stream) 
+HRESULT MarshalStreamComPointers(PaWasapiStream *stream)
 {
 	HRESULT hResult = S_OK;
 	stream->captureClientStream = NULL;
@@ -3178,29 +3223,29 @@ HRESULT MarshalStreamComPointers(PaWasapiStream *stream)
 	stream->renderClientStream = NULL;
 	stream->out.clientStream = NULL;
 
-	if (NULL != stream->in.clientParent) 
+	if (NULL != stream->in.clientParent)
 	{
 		// SubStream pointers
 		hResult = MarshalSubStreamComPointers(&stream->in);
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 			goto marshal_error;
 
 		// IAudioCaptureClient
 		hResult = CoMarshalInterThreadInterfaceInStream(&pa_IID_IAudioCaptureClient, (LPUNKNOWN)stream->captureClientParent, &stream->captureClientStream);
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 			goto marshal_error;
 	}
 
-	if (NULL != stream->out.clientParent) 
+	if (NULL != stream->out.clientParent)
 	{
 		// SubStream pointers
 		hResult = MarshalSubStreamComPointers(&stream->out);
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 			goto marshal_error;
 
 		// IAudioRenderClient
 		hResult = CoMarshalInterThreadInterfaceInStream(&pa_IID_IAudioRenderClient, (LPUNKNOWN)stream->renderClientParent, &stream->renderClientStream);
-		if (hResult != S_OK) 
+		if (hResult != S_OK)
 			goto marshal_error;
 	}
 
@@ -3231,7 +3276,7 @@ static PaError StartStream( PaStream *s )
 	_StreamCleanup(stream);
 
 	// Create close event
-	if ((stream->hCloseRequest = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL) 
+	if ((stream->hCloseRequest = CreateEvent(NULL, TRUE, FALSE, NULL)) == NULL)
 	{
 		result = paInsufficientMemory;
 		goto start_error;
@@ -3250,7 +3295,7 @@ static PaError StartStream( PaStream *s )
 		}
 
 		// Marshal WASAPI interface pointers for safe use in thread created below.
-		if ((hr = MarshalStreamComPointers(stream)) != S_OK) 
+		if ((hr = MarshalStreamComPointers(stream)) != S_OK)
 		{
 			PRINT(("Failed marshaling stream COM pointers."));
 			result = paUnanticipatedHostError;
@@ -3260,7 +3305,7 @@ static PaError StartStream( PaStream *s )
 		if ((stream->in.clientParent  && (stream->in.streamFlags  & AUDCLNT_STREAMFLAGS_EVENTCALLBACK)) ||
 			(stream->out.clientParent && (stream->out.streamFlags & AUDCLNT_STREAMFLAGS_EVENTCALLBACK)))
 		{
-			if ((stream->hThread = CREATE_THREAD(ProcThreadEvent)) == NULL) 
+			if ((stream->hThread = CREATE_THREAD(ProcThreadEvent)) == NULL)
 			{
 				PRINT(("Failed creating thread: ProcThreadEvent."));
 				result = paUnanticipatedHostError;
@@ -3269,7 +3314,7 @@ static PaError StartStream( PaStream *s )
 		}
 		else
 		{
-			if ((stream->hThread = CREATE_THREAD(ProcThreadPoll)) == NULL) 
+			if ((stream->hThread = CREATE_THREAD(ProcThreadPoll)) == NULL)
 			{
 				PRINT(("Failed creating thread: ProcThreadPoll."));
 				result = paUnanticipatedHostError;
@@ -3278,7 +3323,7 @@ static PaError StartStream( PaStream *s )
 		}
 
 		// Wait for thread to start
-		if (WaitForSingleObject(stream->hThreadStart, 60*1000) == WAIT_TIMEOUT) 
+		if (WaitForSingleObject(stream->hThreadStart, 60*1000) == WAIT_TIMEOUT)
 		{
 			PRINT(("Failed starting thread: timeout."));
 			result = paUnanticipatedHostError;
@@ -3288,17 +3333,17 @@ static PaError StartStream( PaStream *s )
 	else
 	{
 		// Create blocking operation events (non-signaled event means - blocking operation is pending)
-		if (stream->out.clientParent != NULL) 
+		if (stream->out.clientParent != NULL)
 		{
-			if ((stream->hBlockingOpStreamWR = CreateEvent(NULL, TRUE, TRUE, NULL)) == NULL) 
+			if ((stream->hBlockingOpStreamWR = CreateEvent(NULL, TRUE, TRUE, NULL)) == NULL)
 			{
 				result = paInsufficientMemory;
 				goto start_error;
 			}
 		}
-		if (stream->in.clientParent != NULL) 
+		if (stream->in.clientParent != NULL)
 		{
-			if ((stream->hBlockingOpStreamRD = CreateEvent(NULL, TRUE, TRUE, NULL)) == NULL) 
+			if ((stream->hBlockingOpStreamRD = CreateEvent(NULL, TRUE, TRUE, NULL)) == NULL)
 			{
 				result = paInsufficientMemory;
 				goto start_error;
@@ -3485,7 +3530,7 @@ static PaError ReadStream( PaStream* s, void *_buffer, unsigned long frames )
 		desired = available;
 		if ((UINT32)desired > frames)
 			desired = frames;
-		
+
 		// Get pointers to read regions
 		read = PaUtil_GetRingBufferReadRegions(stream->in.tailBuffer, desired, &buf1, &buf1_size, &buf2, &buf2_size);
 
@@ -3698,7 +3743,7 @@ static PaError WriteStream( PaStream* s, const void *_buffer, unsigned long fram
 			goto end;
 		}
 
-		// Keep waiting again (on Vista it was noticed that WASAPI could SOMETIMES return NULL pointer 
+		// Keep waiting again (on Vista it was noticed that WASAPI could SOMETIMES return NULL pointer
 		// to buffer without returning AUDCLNT_E_BUFFER_TOO_LARGE instead)
 		if (wasapi_buffer == NULL)
 			continue;
@@ -4241,7 +4286,7 @@ HRESULT _PollGetInputFramesAvailable(PaWasapiStream *stream, UINT32 *available)
 
 	(*available) = 0;
 
-	// GetCurrentPadding() has opposite meaning to Output stream 
+	// GetCurrentPadding() has opposite meaning to Output stream
 	if ((hr = IAudioClient_GetCurrentPadding(stream->in.clientProc, available)) != S_OK)
 		return LogHostError(hr);
 
@@ -4385,14 +4430,14 @@ HRESULT ProcessInputBuffer(PaWasapiStream *stream, PaWasapiHostProcessor *proces
 void _StreamOnStop(PaWasapiStream *stream)
 {
 	// Stop INPUT/OUTPUT clients
-	if (!stream->bBlocking) 
+	if (!stream->bBlocking)
 	{
 		if (stream->in.clientProc != NULL)
 			IAudioClient_Stop(stream->in.clientProc);
 		if (stream->out.clientProc != NULL)
 			IAudioClient_Stop(stream->out.clientProc);
-	} 
-	else 
+	}
+	else
 	{
 		if (stream->in.clientParent != NULL)
 			IAudioClient_Stop(stream->in.clientParent);
@@ -4428,7 +4473,7 @@ PA_THREAD_FUNC ProcThreadEvent(void *param)
 	If COM is already initialized CoInitialize will either return
 	FALSE, or RPC_E_CHANGED_MODE if it was initialized in a different
 	threading mode. In either case we shouldn't consider it an error
-	but we need to be careful to not call CoUninitialize() if 
+	but we need to be careful to not call CoUninitialize() if
 	RPC_E_CHANGED_MODE was returned.
 	*/
 	hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -4635,7 +4680,7 @@ PA_THREAD_FUNC ProcThreadPoll(void *param)
 	If COM is already initialized CoInitialize will either return
 	FALSE, or RPC_E_CHANGED_MODE if it was initialized in a different
 	threading mode. In either case we shouldn't consider it an error
-	but we need to be careful to not call CoUninitialize() if 
+	but we need to be careful to not call CoUninitialize() if
 	RPC_E_CHANGED_MODE was returned.
 	*/
 	hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
@@ -4649,7 +4694,7 @@ PA_THREAD_FUNC ProcThreadPoll(void *param)
 
 	// Unmarshal stream pointers for safe COM operation
 	hr = UnmarshalStreamComPointers(stream);
-	if (hr != S_OK) 
+	if (hr != S_OK)
 	{
 		PRINT(("Error unmarshaling stream COM pointers. HRESULT: %i\n", hr));
 		return 0;

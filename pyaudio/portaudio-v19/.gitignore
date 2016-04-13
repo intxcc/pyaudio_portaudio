@@ -1,0 +1,11 @@
+Makefile
+config.log
+config.status
+libtool
+portaudio-2.0.pc
+*.lo
+*.o
+bin/
+bin-stamp
+lib/
+lib-stamp
