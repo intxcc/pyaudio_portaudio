@@ -11,10 +11,31 @@ This project is a fork of two open source projects. If you'd like, give them som
 
 ---
 
-This project is distributed under the MIT License:
+You can find the precompiled build, static linked with portaudio in the [build](/build/) folder. If you only want the static linked portaudio look in [this](/pyaudio/portaudio-v19/lib) folder.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+I will try to rebuild the project on each update from one of the used projects.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+# How to install?
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+You will need a working cygwin installation with basic developer tools and python.
+
+#### 1.
+Change to /pyaudio/portaudio-v19 and type
+```bash
+make
+```
+
+To rebuild type
+```bash
+make clean
+make
+```
+
+#### 2.
+Change to /pyaudio and type
+```bash
+python setup.py install
+```
+
+# Help!!
+If you get errors, let me know. Thank you &hearts;
