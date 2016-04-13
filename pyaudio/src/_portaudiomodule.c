@@ -27,6 +27,8 @@
 #include <stdio.h>
 #include "Python.h"
 #include "portaudio.h"
+#include "pa_win_wasapi.h"
+#include <Audiosessiontypes.h>
 #include "_portaudiomodule.h"
 
 #ifdef MACOSX
@@ -778,6 +780,10 @@ static void _cleanup_Stream_object(_pyAudio_Stream *streamObject) {
   if (streamObject->streamInfo) streamObject->streamInfo = NULL;
 
   if (streamObject->inputParameters != NULL) {
+    if (streamObject->inputParameters->hostApiSpecificStreamInfo != NULL)   {
+        streamObject->inputParameters->hostApiSpecificStreamInfo = NULL;
+    }
+
     free(streamObject->inputParameters);
     streamObject->inputParameters = NULL;
   }
@@ -1375,7 +1381,7 @@ end:
 
 static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
   int rate, channels;
-  int input, output, frames_per_buffer;
+  int input, output, frames_per_buffer, as_loopback;
   int input_device_index = -1;
   int output_device_index = -1;
   PyObject *input_device_index_arg = NULL;
@@ -1403,6 +1409,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                            "input_host_api_specific_stream_info",
                            "output_host_api_specific_stream_info",
                            "stream_callback",
+                           "as_loopback",
                            NULL};
 
 #ifdef MACOSX
@@ -1418,14 +1425,15 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
   /* default to neither output nor input */
   input = 0;
   output = 0;
+  as_loopback = 0;
   frames_per_buffer = DEFAULT_FRAMES_PER_BUFFER;
 
   // clang-format off
   if (!PyArg_ParseTupleAndKeywords(args, kwargs,
 #ifdef MACOSX
-                                   "iik|iiOOiO!O!O",
+                                   "iik|iiOOiO!O!Oi",
 #else
-                                   "iik|iiOOiOOO",
+                                   "iik|iiOOiOOOi",
 #endif
                                    kwlist,
                                    &rate, &channels, &format,
@@ -1441,7 +1449,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                                    &_pyAudio_MacOSX_hostApiSpecificStreamInfoType,
 #endif
                                    &outputHostSpecificStreamInfo,
-                                   &stream_callback)) {
+                                   &stream_callback, &as_loopback)) {
 
     return NULL;
   }
@@ -1530,8 +1538,8 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     outputParameters->channelCount = channels;
     outputParameters->sampleFormat = format;
-    outputParameters->suggestedLatency =
-        Pa_GetDeviceInfo(outputParameters->device)->defaultLowOutputLatency;
+    outputParameters->suggestedLatency = Pa_GetDeviceInfo(outputParameters->device)->defaultLowOutputLatency;
+
     outputParameters->hostApiSpecificStreamInfo = NULL;
 
 #ifdef MACOSX
@@ -1553,6 +1561,9 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     /* final check -- ensure that there is a default device */
     if (inputParameters->device < 0) {
+      if (inputParameters->hostApiSpecificStreamInfo != NULL)   {
+        inputParameters->hostApiSpecificStreamInfo = NULL;
+      }
       free(inputParameters);
       PyErr_SetObject(PyExc_IOError,
                       Py_BuildValue("(i,s)", paInvalidDevice,
@@ -1566,6 +1577,23 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
     inputParameters->suggestedLatency =
         Pa_GetDeviceInfo(inputParameters->device)->defaultLowInputLatency;
     inputParameters->hostApiSpecificStreamInfo = NULL;
+
+    if (Pa_GetHostApiInfo(Pa_GetDeviceInfo(inputParameters->device)->hostApi)->type == 13) {
+        PaWasapiStreamInfo *wasapiInfo = (PaWasapiStreamInfo *)malloc(sizeof(PaWasapiStreamInfo));
+
+        if (as_loopback) {
+            wasapiInfo->streamFlags = AUDCLNT_STREAMFLAGS_LOOPBACK;
+        } else {
+            wasapiInfo->streamFlags = 0;
+        }
+
+        wasapiInfo->hostApiType = paWASAPI;
+        wasapiInfo->version = 1;
+        wasapiInfo->flags = 0;//(paWinWasapiExclusive|paWinWasapiThreadPriority);
+        wasapiInfo->size = sizeof(PaWasapiStreamInfo);
+
+        inputParameters->hostApiSpecificStreamInfo = wasapiInfo;
+    }
 
 #ifdef MACOSX
     if (inputHostSpecificStreamInfo) {
@@ -1608,6 +1636,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     PyErr_SetObject(PyExc_IOError,
                     Py_BuildValue("(i,s)", err, Pa_GetErrorText(err)));
+
     return NULL;
   }
 

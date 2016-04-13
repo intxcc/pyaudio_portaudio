@@ -89,13 +89,13 @@ else:
                             '-framework', 'AudioUnit',
                             '-framework', 'Carbon']
     elif sys.platform == 'cygwin':
-        external_libraries += ['winmm']
-        extra_link_args += ['-lwinmm']
+        external_libraries += ["winmm","ole32","uuid"]
+        extra_link_args += ["-lwinmm","-lole32","-luuid"]
     elif sys.platform == 'win32':
         # i.e., Win32 Python with mingw32
         # run: python setup.py build -cmingw32
-        external_libraries += ['winmm']
-        extra_link_args += ['-lwinmm']
+        external_libraries += ["winmm","ole32","uuid"]
+        extra_link_args += ["-lwinmm","-lole32","-luuid"]
     elif sys.platform == 'linux2':
         extra_link_args += ['-lrt', '-lm', '-lpthread']
         # GNU/Linux has several audio systems (backends) available; be
