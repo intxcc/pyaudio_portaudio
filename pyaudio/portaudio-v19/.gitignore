@@ -7,5 +7,4 @@ portaudio-2.0.pc
 *.o
 bin/
 bin-stamp
-lib/
 lib-stamp
