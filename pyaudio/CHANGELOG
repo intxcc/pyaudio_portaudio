@@ -1,0 +1,123 @@
+2015-10-18  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.9
+
+  - Fix overflow error handling logic for pa_read_stream.
+
+    Stream.read takes an additional parameter that specifies whether
+    an exception is raised on audio buffer overflow, for parity with
+    Stream.write.  Includes relevant bug fixes in the C module logic.
+
+    Thanks to Tony Jacobson for submitting a patch!
+
+  - Fix IOError arguments.
+
+    IOError exceptions previously had values in the strerror and errno fields
+    swapped, which is now corrected.
+
+    Thanks to Sami Liedes for the report!
+
+  - Miscellaneous updates.
+
+    Python library surfaces issues with importing low-level C module.
+    Code formatting update.
+    Updates to examples for Python 3 compatibility.
+
+2014-02-16  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.8
+
+  - Device names: support non-UTF8 encoded device names.
+
+    get_device_info_by_index() now attempts to decode the device name
+    using a few known encodings (defaults to UTF-8 and CP1252).  If
+    those fail, PyAudio passes the raw bytes for the device name.
+    Previously, PyAudio assumed a UTF-8 encoding, which is not always
+    true.
+
+  - Callback-mode: fix deadlock on some platforms when calling
+    pa.stop_stream.
+
+    Thanks to Jason Roehm for this patch!
+
+2012-10-20  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.7
+
+  - Callback-mode: support callables.
+
+    Thanks to John Luebs and Bastian Bechtold for this patch.
+
+  - Update documentation to use Sphinx.
+
+    Thanks again to Bastian Bechtold for his incredible contribution!
+
+
+2012-09-01  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.6
+
+  - Added support for Python 3.  As of this update, PyAudio is
+    compatible with Python 2.6, Python 2.7, and Python 3.2.
+
+    Many thanks to Bastian Bechtold and Bob Jamison for their patches!
+
+  - Fixed a bug in which a list could be modified during iteration.
+
+    Many thanks to Danilo J. S. Bellini for reporting this error!
+
+  - Fixed a memory bug involving Mac OS X channel maps.
+
+
+2012-09-01  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.5
+
+  - Added support for callback (non-blocking) operation.
+
+    Many thanks to Bastian Bechtold for his initial contribution and
+    his generous help towards releasing this feature.  Callback mode
+    would not have happened without Bastian's help!
+
+
+2010-08-12  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.4
+
+  - Maintenance release: updated directory structure and packaging.
+
+
+2008-10-29  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.3
+
+  - Release the GIL during blocking PortAudio I/O calls.
+
+  - Fixed Python argument parsing to use a long for PaSampleFormat
+    (rather than int).
+
+    Thanks to many who have pointed out these two issues and sent
+    patches.
+
+  - pyaudio.PyAudio.is_format_supported() now throws a ValueError
+    exception if the specified format is not supported for any reason
+    (or returns True if the format is supported).
+
+    Prior, the method would return False if and only if the specified
+    sample rate was unsupported. is_format_supported() now will always
+    return True or throw an exception.
+
+
+2008-03-06  Hubert Pham <hubert@mit.edu>
+
+  PyAudio 0.2.0
+
+  - Added PaMacCoreStreamInfo for Mac OS X Host API Specific Stream Info
+    (e.g., for channel maps).
+
+  - Added packaging files for building binaries.
+
+
+2008-02-12  Justin Mazzola Paluska  <jmp@mit.edu>
+
+  - Initial version of debian packaging.

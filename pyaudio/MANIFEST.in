@@ -1,0 +1,5 @@
+include src/*.c src/*.h src/*.py
+include Makefile CHANGELOG INSTALL MANIFEST.in
+recursive-include test *.py *.c
+graft docs
+graft sphinx
