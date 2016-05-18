@@ -34,7 +34,7 @@ make
 #### 2.
 Change to /pyaudio and type
 ```bash
-python setup.py install
+python setup.py install --static-link
 ```
 
 # Help!!
