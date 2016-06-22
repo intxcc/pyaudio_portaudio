@@ -61,7 +61,7 @@ else:
         useloopback = True;
         print textcolors.green + "Selection is output. Using loopback mode.\n" + textcolors.end
     else:
-        print textcolors.fail + "Selection is input and does not support loopback mode. Quitting.\n" + textcolors.end
+        print textcolors.fail + "Selection is output and does not support loopback mode. Quitting.\n" + textcolors.end
         exit()
 
 recordtime = int(raw_input("Record time in seconds [" + textcolors.blue + str(recordtime) + textcolors.end + "]: ") or recordtime)
