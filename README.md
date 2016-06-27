@@ -11,7 +11,7 @@ This project is a fork of two open source projects. If you'd like, give them som
 
 ---
 
-You can find the precompiled PyAudio build, static linked with PortAudio, as well as only the static linked PortAudio in the [release](https://github.com/intxcc/pyaudio_portaudio/releases).
+###You can find the precompiled PyAudio build, static linked with PortAudio, as well as only the static linked PortAudio in the [release](https://github.com/intxcc/pyaudio_portaudio/releases).
 
 I will try to rebuild the project on each update from one of the used projects.
 
