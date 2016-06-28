@@ -11,11 +11,24 @@ This project is a fork of two open source projects. If you'd like, give them som
 
 ---
 
+# Usage
+
+See the [example](https://github.com/intxcc/pyaudio_portaudio/tree/master/example).
+
+Exactly like the official PyAudio but with the extra option "as_loopback" which expects a boolean.
+```python
+import pyaudio
+p = pyaudio.PyAudio()
+stream = p.open([...], as_loopback = True)
+```
+
+# How to install?
+
 ###You can find the precompiled PyAudio build, static linked with PortAudio, as well as only the static linked PortAudio in the [release](https://github.com/intxcc/pyaudio_portaudio/releases).
 
 I will try to rebuild the project on each update from one of the used projects.
 
-# How to install?
+# How to build?
 
 You will need a working cygwin installation with basic developer tools and python.
 
