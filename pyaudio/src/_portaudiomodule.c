@@ -27,8 +27,6 @@
 #include <stdio.h>
 #include "Python.h"
 #include "portaudio.h"
-#include "pa_win_wasapi.h"
-#include <Audiosessiontypes.h>
 #include "_portaudiomodule.h"
 
 #ifdef MACOSX
@@ -756,8 +754,8 @@ typedef struct {
 typedef struct {
   // clang-format off
   PyObject_HEAD
-      // clang-format on
-      PaStream *stream;
+  // clang-format on
+  PaStream *stream;
   PaStreamParameters *inputParameters;
   PaStreamParameters *outputParameters;
   PaStreamInfo *streamInfo;
@@ -773,17 +771,13 @@ static void _cleanup_Stream_object(_pyAudio_Stream *streamObject) {
     Py_BEGIN_ALLOW_THREADS
     Pa_CloseStream(streamObject->stream);
     Py_END_ALLOW_THREADS
-        // clang-format on
-        streamObject->stream = NULL;
+    // clang-format on
+    streamObject->stream = NULL;
   }
 
   if (streamObject->streamInfo) streamObject->streamInfo = NULL;
 
   if (streamObject->inputParameters != NULL) {
-    if (streamObject->inputParameters->hostApiSpecificStreamInfo != NULL)   {
-        streamObject->inputParameters->hostApiSpecificStreamInfo = NULL;
-    }
-
     free(streamObject->inputParameters);
     streamObject->inputParameters = NULL;
   }
@@ -981,14 +975,26 @@ static PyObject *pa_get_version_text(PyObject *self, PyObject *args) {
 
 static PyObject *pa_initialize(PyObject *self, PyObject *args) {
   int err;
+
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
   err = Pa_Initialize();
+  Py_END_ALLOW_THREADS
+  // clang-format on
+
   if (err != paNoError) {
+    // clang-format off
+    Py_BEGIN_ALLOW_THREADS
     Pa_Terminate();
+    Py_END_ALLOW_THREADS
+    // clang-format on
+
 #ifdef VERBOSE
     fprintf(stderr, "An error occured while using the portaudio stream\n");
     fprintf(stderr, "Error number: %d\n", err);
     fprintf(stderr, "Error message: %s\n", Pa_GetErrorText(err));
 #endif
+
     PyErr_SetObject(PyExc_IOError,
                     Py_BuildValue("(i,s)", err, Pa_GetErrorText(err)));
     return NULL;
@@ -999,7 +1005,12 @@ static PyObject *pa_initialize(PyObject *self, PyObject *args) {
 }
 
 static PyObject *pa_terminate(PyObject *self, PyObject *args) {
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
   Pa_Terminate();
+  Py_END_ALLOW_THREADS
+  // clang-format on
+
   Py_INCREF(Py_None);
   return Py_None;
 }
@@ -1280,7 +1291,7 @@ int _stream_callback_cfunction(const void *input, void *output,
   PyObject *py_status_flags = PyLong_FromUnsignedLong(statusFlags);
   PyObject *py_input_data = Py_None;
   const char *pData;
-  int output_len;
+  unsigned output_len;
   PyObject *py_result;
 
   if (input) {
@@ -1337,8 +1348,6 @@ int _stream_callback_cfunction(const void *input, void *output,
     goto end;
   }
 
-  Py_DECREF(py_result);
-
   if ((return_val != paComplete) && (return_val != paAbort) &&
       (return_val != paContinue)) {
     PyErr_SetString(PyExc_ValueError,
@@ -1347,6 +1356,7 @@ int _stream_callback_cfunction(const void *input, void *output,
     PyErr_Print();
 
     // Quit the callback loop
+    Py_DECREF(py_result);
     return_val = paAbort;
     goto end;
   }
@@ -1363,6 +1373,7 @@ int _stream_callback_cfunction(const void *input, void *output,
       return_val = paComplete;
     }
   }
+  Py_DECREF(py_result);
 
 end:
   if (input) {
@@ -1381,7 +1392,7 @@ end:
 
 static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
   int rate, channels;
-  int input, output, frames_per_buffer, as_loopback;
+  int input, output, frames_per_buffer;
   int input_device_index = -1;
   int output_device_index = -1;
   PyObject *input_device_index_arg = NULL;
@@ -1409,7 +1420,6 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                            "input_host_api_specific_stream_info",
                            "output_host_api_specific_stream_info",
                            "stream_callback",
-                           "as_loopback",
                            NULL};
 
 #ifdef MACOSX
@@ -1425,15 +1435,14 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
   /* default to neither output nor input */
   input = 0;
   output = 0;
-  as_loopback = 0;
   frames_per_buffer = DEFAULT_FRAMES_PER_BUFFER;
 
   // clang-format off
   if (!PyArg_ParseTupleAndKeywords(args, kwargs,
 #ifdef MACOSX
-                                   "iik|iiOOiO!O!Oi",
+                                   "iik|iiOOiO!O!O",
 #else
-                                   "iik|iiOOiOOOi",
+                                   "iik|iiOOiOOO",
 #endif
                                    kwlist,
                                    &rate, &channels, &format,
@@ -1449,7 +1458,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                                    &_pyAudio_MacOSX_hostApiSpecificStreamInfoType,
 #endif
                                    &outputHostSpecificStreamInfo,
-                                   &stream_callback, &as_loopback)) {
+                                   &stream_callback)) {
 
     return NULL;
   }
@@ -1538,8 +1547,8 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     outputParameters->channelCount = channels;
     outputParameters->sampleFormat = format;
-    outputParameters->suggestedLatency = Pa_GetDeviceInfo(outputParameters->device)->defaultLowOutputLatency;
-
+    outputParameters->suggestedLatency =
+        Pa_GetDeviceInfo(outputParameters->device)->defaultLowOutputLatency;
     outputParameters->hostApiSpecificStreamInfo = NULL;
 
 #ifdef MACOSX
@@ -1561,9 +1570,6 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     /* final check -- ensure that there is a default device */
     if (inputParameters->device < 0) {
-      if (inputParameters->hostApiSpecificStreamInfo != NULL)   {
-        inputParameters->hostApiSpecificStreamInfo = NULL;
-      }
       free(inputParameters);
       PyErr_SetObject(PyExc_IOError,
                       Py_BuildValue("(i,s)", paInvalidDevice,
@@ -1577,23 +1583,6 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
     inputParameters->suggestedLatency =
         Pa_GetDeviceInfo(inputParameters->device)->defaultLowInputLatency;
     inputParameters->hostApiSpecificStreamInfo = NULL;
-
-    if (Pa_GetHostApiInfo(Pa_GetDeviceInfo(inputParameters->device)->hostApi)->type == 13) {
-        PaWasapiStreamInfo *wasapiInfo = (PaWasapiStreamInfo *)malloc(sizeof(PaWasapiStreamInfo));
-
-        if (as_loopback) {
-            wasapiInfo->streamFlags = AUDCLNT_STREAMFLAGS_LOOPBACK;
-        } else {
-            wasapiInfo->streamFlags = 0;
-        }
-
-        wasapiInfo->hostApiType = paWASAPI;
-        wasapiInfo->version = 1;
-        wasapiInfo->flags = 0;//(paWinWasapiExclusive|paWinWasapiThreadPriority);
-        wasapiInfo->size = sizeof(PaWasapiStreamInfo);
-
-        inputParameters->hostApiSpecificStreamInfo = wasapiInfo;
-    }
 
 #ifdef MACOSX
     if (inputHostSpecificStreamInfo) {
@@ -1611,6 +1600,8 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
     context->frame_size = Pa_GetSampleSize(format) * channels;
   }
 
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
   err = Pa_OpenStream(&stream,
                       /* input/output parameters */
                       /* NULL values are ignored */
@@ -1626,6 +1617,8 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                       (stream_callback) ? (_stream_callback_cfunction) : (NULL),
                       /* callback userData, if applicable */
                       context);
+  Py_END_ALLOW_THREADS
+  // clang-format on
 
   if (err != paNoError) {
 #ifdef VERBOSE
@@ -1636,7 +1629,6 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
     PyErr_SetObject(PyExc_IOError,
                     Py_BuildValue("(i,s)", err, Pa_GetErrorText(err)));
-
     return NULL;
   }
 
@@ -1773,7 +1765,6 @@ static PyObject *pa_start_stream(PyObject *self, PyObject *args) {
   int err;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -1787,9 +1778,13 @@ static PyObject *pa_start_stream(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  err = Pa_StartStream(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
 
-  if (((err = Pa_StartStream(stream)) != paNoError) &&
+  if ((err != paNoError) &&
       (err != paStreamIsNotStopped)) {
     _cleanup_Stream_object(streamObject);
 
@@ -1812,7 +1807,6 @@ static PyObject *pa_stop_stream(PyObject *self, PyObject *args) {
   int err;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -1825,15 +1819,13 @@ static PyObject *pa_stop_stream(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
-
   // clang-format off
   Py_BEGIN_ALLOW_THREADS
-  err = Pa_StopStream(stream);
+  err = Pa_StopStream(streamObject->stream);
   Py_END_ALLOW_THREADS
-      // clang-format on
+  // clang-format on
 
-      if ((err != paNoError) && (err != paStreamIsStopped)) {
+  if ((err != paNoError) && (err != paStreamIsStopped)) {
     _cleanup_Stream_object(streamObject);
 
 #ifdef VERBOSE
@@ -1855,7 +1847,6 @@ static PyObject *pa_abort_stream(PyObject *self, PyObject *args) {
   int err;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -1868,15 +1859,13 @@ static PyObject *pa_abort_stream(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
-
   // clang-format off
   Py_BEGIN_ALLOW_THREADS
-  err = Pa_AbortStream(stream);
+  err = Pa_AbortStream(streamObject->stream);
   Py_END_ALLOW_THREADS
-      // clang-format on
+  // clang-format on
 
-      if ((err != paNoError) && (err != paStreamIsStopped)) {
+  if ((err != paNoError) && (err != paStreamIsStopped)) {
     _cleanup_Stream_object(streamObject);
 
 #ifdef VERBOSE
@@ -1898,7 +1887,6 @@ static PyObject *pa_is_stream_stopped(PyObject *self, PyObject *args) {
   int err;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -1912,9 +1900,13 @@ static PyObject *pa_is_stream_stopped(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  err = Pa_IsStreamStopped(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
 
-  if ((err = Pa_IsStreamStopped(stream)) < 0) {
+  if (err < 0) {
     _cleanup_Stream_object(streamObject);
 
 #ifdef VERBOSE
@@ -1941,7 +1933,6 @@ static PyObject *pa_is_stream_active(PyObject *self, PyObject *args) {
   int err;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -1954,9 +1945,13 @@ static PyObject *pa_is_stream_active(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  err = Pa_IsStreamActive(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
 
-  if ((err = Pa_IsStreamActive(stream)) < 0) {
+  if (err < 0) {
     _cleanup_Stream_object(streamObject);
 
 #ifdef VERBOSE
@@ -1983,7 +1978,6 @@ static PyObject *pa_get_stream_time(PyObject *self, PyObject *args) {
   double time;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -1997,9 +1991,13 @@ static PyObject *pa_get_stream_time(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  time = Pa_GetStreamTime(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
 
-  if ((time = Pa_GetStreamTime(stream)) == 0) {
+  if (time == 0) {
     _cleanup_Stream_object(streamObject);
     PyErr_SetObject(PyExc_IOError,
                     Py_BuildValue("(i,s)", paInternalError, "Internal Error"));
@@ -2010,9 +2008,9 @@ static PyObject *pa_get_stream_time(PyObject *self, PyObject *args) {
 }
 
 static PyObject *pa_get_stream_cpu_load(PyObject *self, PyObject *args) {
+  double cpuload;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -2026,8 +2024,13 @@ static PyObject *pa_get_stream_cpu_load(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
-  return PyFloat_FromDouble(Pa_GetStreamCpuLoad(stream));
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  cpuload = Pa_GetStreamCpuLoad(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
+
+  return PyFloat_FromDouble(cpuload);
 }
 
 /*************************************************************
@@ -2043,7 +2046,6 @@ static PyObject *pa_write_stream(PyObject *self, PyObject *args) {
 
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   // clang-format off
   if (!PyArg_ParseTuple(args, "O!s#i|i",
@@ -2070,15 +2072,13 @@ static PyObject *pa_write_stream(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
-
   // clang-format off
   Py_BEGIN_ALLOW_THREADS
-  err = Pa_WriteStream(stream, data, total_frames);
+  err = Pa_WriteStream(streamObject->stream, data, total_frames);
   Py_END_ALLOW_THREADS
-      // clang-format on
+  // clang-format on
 
-      if (err != paNoError) {
+  if (err != paNoError) {
     if (err == paOutputUnderflowed) {
       if (should_throw_exception) {
         goto error;
@@ -2114,7 +2114,6 @@ static PyObject *pa_read_stream(PyObject *self, PyObject *args) {
 
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
   PaStreamParameters *inputParameters;
 
   // clang-format off
@@ -2140,7 +2139,6 @@ static PyObject *pa_read_stream(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
   inputParameters = streamObject->inputParameters;
   num_bytes = (total_frames) * (inputParameters->channelCount) *
               (Pa_GetSampleSize(inputParameters->sampleFormat));
@@ -2160,11 +2158,11 @@ static PyObject *pa_read_stream(PyObject *self, PyObject *args) {
 
   // clang-format off
   Py_BEGIN_ALLOW_THREADS
-  err = Pa_ReadStream(stream, sampleBlock, total_frames);
+  err = Pa_ReadStream(streamObject->stream, sampleBlock, total_frames);
   Py_END_ALLOW_THREADS
-      // clang-format on
+  // clang-format on
 
-      if (err != paNoError) {
+  if (err != paNoError) {
     if (err == paInputOverflowed) {
       if (should_raise_exception) {
         goto error;
@@ -2195,7 +2193,6 @@ static PyObject *pa_get_stream_write_available(PyObject *self, PyObject *args) {
   signed long frames;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -2209,8 +2206,12 @@ static PyObject *pa_get_stream_write_available(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
-  frames = Pa_GetStreamWriteAvailable(stream);
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  frames = Pa_GetStreamWriteAvailable(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
+
   return PyLong_FromLong(frames);
 }
 
@@ -2218,7 +2219,6 @@ static PyObject *pa_get_stream_read_available(PyObject *self, PyObject *args) {
   signed long frames;
   PyObject *stream_arg;
   _pyAudio_Stream *streamObject;
-  PaStream *stream;
 
   if (!PyArg_ParseTuple(args, "O!", &_pyAudio_StreamType, &stream_arg)) {
     return NULL;
@@ -2232,8 +2232,12 @@ static PyObject *pa_get_stream_read_available(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  stream = streamObject->stream;
-  frames = Pa_GetStreamReadAvailable(stream);
+  // clang-format off
+  Py_BEGIN_ALLOW_THREADS
+  frames = Pa_GetStreamReadAvailable(streamObject->stream);
+  Py_END_ALLOW_THREADS
+  // clang-format on
+
   return PyLong_FromLong(frames);
 }
 

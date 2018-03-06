@@ -1,6 +1,6 @@
 # _Precompiled & Extended_ | PyAudio with PortAudio for Windows
 
-#### _Used versions_: <br>&middot; PyAudio 0.2.9 | co dce064b428<br>&middot; PortAudio V19 | rev 1919
+#### _Used versions_: <br>&middot; PyAudio 0.2.11 | co 7090e25bcba41413bd7ce89aa73bc0efb1ae1ca1<br>&middot; PortAudio V19 | co 1bdcb9e41357ec76d8cf73f9ef278202a3ea1e3b
 
 #### Extensions:<br>&middot; Support of Windows sound loopback: Record the output of your soundcard
 
@@ -24,7 +24,7 @@ stream = p.open([...], as_loopback = True)
 
 # How to install?
 
-###You can find the precompiled PyAudio build, static linked with PortAudio, as well as only the static linked PortAudio in the [release](https://github.com/intxcc/pyaudio_portaudio/releases).
+### You can find the precompiled PyAudio build, static linked with PortAudio, as well as only the static linked PortAudio in the [release](https://github.com/intxcc/pyaudio_portaudio/releases).
 
 I will try to rebuild the project on each update from one of the used projects.
 

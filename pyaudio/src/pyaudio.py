@@ -106,7 +106,7 @@ Overview
 """
 
 __author__ = "Hubert Pham"
-__version__ = "0.2.9"
+__version__ = "0.2.11"
 __docformat__ = "restructuredtext en"
 
 import sys
@@ -299,8 +299,7 @@ class Stream:
                  start=True,
                  input_host_api_specific_stream_info=None,
                  output_host_api_specific_stream_info=None,
-                 stream_callback=None,
-                 as_loopback=False):
+                 stream_callback=None):
         """
         Initialize a stream; this should be called by
         :py:func:`PyAudio.open`. A stream can either be input, output,
@@ -412,7 +411,6 @@ class Stream:
         self._channels = channels
         self._format = format
         self._frames_per_buffer = frames_per_buffer
-        self._as_loopback = as_loopback
 
         arguments = {
             'rate' : rate,
@@ -422,8 +420,7 @@ class Stream:
             'output' : output,
             'input_device_index' : input_device_index,
             'output_device_index' : output_device_index,
-            'frames_per_buffer' : frames_per_buffer,
-            'as_loopback' : as_loopback}
+            'frames_per_buffer' : frames_per_buffer}
 
         if input_host_api_specific_stream_info:
             _l = input_host_api_specific_stream_info
@@ -474,7 +471,7 @@ class Stream:
 
     def get_output_latency(self):
         """
-        Return the input latency.
+        Return the output latency.
 
         :rtype: float
         """

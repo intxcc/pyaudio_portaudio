@@ -1,7 +1,7 @@
 Example: Blocking Mode Audio I/O
 --------------------------------
 
-.. literalinclude:: ../test/play_wave.py
+.. literalinclude:: ../examples/play_wave.py
 
 To use PyAudio, first instantiate PyAudio using
 :py:func:`pyaudio.PyAudio` (1), which sets up the portaudio system.
@@ -30,7 +30,7 @@ Finally, terminate the portaudio session using
 Example: Callback Mode Audio I/O
 --------------------------------
 
-.. literalinclude:: ../test/play_wave_callback.py
+.. literalinclude:: ../examples/play_wave_callback.py
 
 In callback mode, PyAudio will call a specified callback function (2)
 whenever it needs new audio data (to play) and/or when there is new

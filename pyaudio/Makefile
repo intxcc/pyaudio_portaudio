@@ -2,7 +2,7 @@
 
 .PHONY: docs clean build
 
-VERSION := 0.2.9
+VERSION := 0.2.11
 PYTHON ?= python
 BUILD_ARGS ?=
 SPHINX ?= sphinx-build
@@ -11,7 +11,8 @@ PYTHON_BUILD_DIR:=$(shell $(PYTHON) -c "import distutils.util; import sys; print
 BUILD_DIR:=lib.$(PYTHON_BUILD_DIR)
 BUILD_STAMP:=$(BUILD_DIR)/build
 SRCFILES := src/*.c src/*.h src/*.py
-EXAMPLES := test/*.py
+EXAMPLES := examples/*.py
+TESTS := tests/*.py
 
 what:
 	@echo "make targets:"
@@ -43,5 +44,5 @@ docs: build
 ######################################################################
 # Source Tarball
 ######################################################################
-tarball: docs $(SRCFILES) $(EXAMPLES) MANIFEST.in
+tarball: $(SRCFILES) $(EXAMPLES) $(TESTS) MANIFEST.in
 	@$(PYTHON) setup.py sdist

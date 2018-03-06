@@ -1,3 +1,25 @@
+2017-03-18  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.11
+
+  - Fix use-after-free memory issue in callback handler.
+
+    Thanks to both Blaise Potard and Matthias Schaff for their patches!
+
+  - Fix docstring for get_output_latency().
+
+    Thanks to Timothy Port for finding the issue!
+
+2017-01-10  Hubert Pham  <hubert@mit.edu>
+
+  PyAudio 0.2.10
+
+  - Release the GIL during PortAudio I/O calls to avoid potential deadlock.
+
+    Thanks to Michael Graczyk for submitting a patch!
+
+  - Add a few automated unit tests.
+
 2015-10-18  Hubert Pham  <hubert@mit.edu>
 
   PyAudio 0.2.9

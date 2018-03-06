@@ -1,5 +1,5 @@
 """
-PyAudio v0.2.9: Python Bindings for PortAudio.
+PyAudio v0.2.11: Python Bindings for PortAudio.
 
 Copyright (c) 2006 Hubert Pham
 
@@ -34,7 +34,7 @@ try:
 except ImportError:
     from distutils.core import setup, Extension
 
-__version__ = "0.2.9"
+__version__ = "0.2.11"
 
 # distutils will try to locate and link dynamically against portaudio.
 #
@@ -89,13 +89,13 @@ else:
                             '-framework', 'AudioUnit',
                             '-framework', 'Carbon']
     elif sys.platform == 'cygwin':
-        external_libraries += ["winmm","ole32","uuid"]
-        extra_link_args += ["-lwinmm","-lole32","-luuid"]
+        external_libraries += ['winmm']
+        extra_link_args += ['-lwinmm']
     elif sys.platform == 'win32':
         # i.e., Win32 Python with mingw32
         # run: python setup.py build -cmingw32
-        external_libraries += ["winmm","ole32","uuid"]
-        extra_link_args += ["-lwinmm","-lole32","-luuid"]
+        external_libraries += ['winmm']
+        extra_link_args += ['-lwinmm']
     elif sys.platform == 'linux2':
         extra_link_args += ['-lrt', '-lm', '-lpthread']
         # GNU/Linux has several audio systems (backends) available; be
