@@ -35,13 +35,14 @@ You will need a working cygwin installation with basic developer tools and pytho
 #### 1.
 Change to /pyaudio/portaudio-v19 and type
 ```bash
-make
+./configure --with-winapi=wasapi --enable-static=yes --enable-shared=no
+make loopback
 ```
 
 To rebuild type
 ```bash
 make clean
-make
+make loopback
 ```
 
 #### 2.
