@@ -2360,6 +2360,17 @@ static PaError GetClosestFormat(IAudioClient *myClient, double sampleRate,
 	return answer;
 }
 
+static int intendToUseLoopback(const  PaStreamParameters *inputParameters) {
+	if (inputParameters != NULL)
+	{
+		PaWasapiStreamInfo *inputStreamInfo = (PaWasapiStreamInfo *)inputParameters->hostApiSpecificStreamInfo;
+		int streamFlags  = (inputStreamInfo ? inputStreamInfo->streamFlags : 0);
+
+		return streamFlags;
+	}
+	return 0;
+}
+
 // ------------------------------------------------------------------------------------------
 static PaError IsStreamParamsValid(struct PaUtilHostApiRepresentation *hostApi,
                                    const  PaStreamParameters *inputParameters,
@@ -2375,29 +2386,29 @@ static PaError IsStreamParamsValid(struct PaUtilHostApiRepresentation *hostApi,
     {
         /* all standard sample formats are supported by the buffer adapter,
             this implementation doesn't support any custom sample formats */
-		if (inputParameters->sampleFormat & paCustomFormat)
+				if (inputParameters->sampleFormat & paCustomFormat)
             return paSampleFormatNotSupported;
 
         /* unless alternate device specification is supported, reject the use of
             paUseHostApiSpecificDeviceSpecification */
         if (inputParameters->device == paUseHostApiSpecificDeviceSpecification)
-            return paInvalidDevice;
+        	return paInvalidDevice;
 
         /* check that input device can support inputChannelCount */
-        if (inputParameters->channelCount > hostApi->deviceInfos[ inputParameters->device ]->maxInputChannels)
-            return paInvalidChannelCount;
+				if ((inputParameters->channelCount > hostApi->deviceInfos[ inputParameters->device ]->maxInputChannels) && (!intendToUseLoopback(inputParameters)))
+        	return paInvalidChannelCount;
 
         /* validate inputStreamInfo */
         if (inputParameters->hostApiSpecificStreamInfo)
-		{
-			PaWasapiStreamInfo *inputStreamInfo = (PaWasapiStreamInfo *)inputParameters->hostApiSpecificStreamInfo;
-	        if ((inputStreamInfo->size != sizeof(PaWasapiStreamInfo)) ||
-	            (inputStreamInfo->version != 1) ||
-                (inputStreamInfo->hostApiType != paWASAPI))
-	        {
-	            return paIncompatibleHostApiSpecificStreamInfo;
-	        }
-		}
+				{
+					PaWasapiStreamInfo *inputStreamInfo = (PaWasapiStreamInfo *)inputParameters->hostApiSpecificStreamInfo;
+			        if ((inputStreamInfo->size != sizeof(PaWasapiStreamInfo)) ||
+			            (inputStreamInfo->version != 1) ||
+		                (inputStreamInfo->hostApiType != paWASAPI))
+			        {
+			            return paIncompatibleHostApiSpecificStreamInfo;
+			        }
+				}
 
         return paNoError;
     }
@@ -3181,7 +3192,7 @@ static PaError OpenStream( struct PaUtilHostApiRepresentation *hostApi,
 			stream->in.params.stream_params.hostApiSpecificStreamInfo = &stream->in.params.wasapi_params;
 			inputStreamInfo = &stream->in.params.wasapi_params;
 
-			stream->in.flags = inputStreamInfo->flags;
+			stream->in.streamFlags = (inputStreamInfo ? inputStreamInfo->streamFlags : 0);
 
 			// Exclusive Mode
 			if (inputStreamInfo->flags & paWinWasapiExclusive)
@@ -3202,18 +3213,20 @@ static PaError OpenStream( struct PaUtilHostApiRepresentation *hostApi,
 		}
 
 		// Choose processing mode
-		stream->in.streamFlags = (stream->in.shareMode == AUDCLNT_SHAREMODE_EXCLUSIVE ? AUDCLNT_STREAMFLAGS_EVENTCALLBACK : 0);
+		unsigned long tmp_streamFlags = stream->in.streamFlags;
+
+		stream->in.streamFlags = (stream->in.shareMode == AUDCLNT_SHAREMODE_EXCLUSIVE ? AUDCLNT_STREAMFLAGS_EVENTCALLBACK : 0) | tmp_streamFlags;
 		if (paWasapi->useWOW64Workaround)
-			stream->in.streamFlags = 0; // polling interface
+			stream->in.streamFlags = tmp_streamFlags; // polling interface
 		else
 		if (streamCallback == NULL)
-			stream->in.streamFlags = 0; // polling interface
+			stream->in.streamFlags = tmp_streamFlags; // polling interface
 		else
 		if ((inputStreamInfo != NULL) && (inputStreamInfo->flags & paWinWasapiPolling))
-			stream->in.streamFlags = 0; // polling interface
+			stream->in.streamFlags = tmp_streamFlags; // polling interface
 		else
 		if (fullDuplex)
-			stream->in.streamFlags = 0; // polling interface is implemented for full-duplex mode also
+			stream->in.streamFlags = tmp_streamFlags; // polling interface is implemented for full-duplex mode also
 
 		// Fill parameters for Audio Client creation
 		stream->in.params.device_info       = info;
