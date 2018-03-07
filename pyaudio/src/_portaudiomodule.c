@@ -1584,9 +1584,9 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
 
       free(inputParameters);
 
-      /* if (inputParameters->hostApiSpecificStreamInfo) {
+      if (inputParameters->hostApiSpecificStreamInfo) {
         free(inputParameters->hostApiSpecificStreamInfo);
-      } */
+      }
 
       PyErr_SetObject(PyExc_IOError,
                       Py_BuildValue("(i,s)", paInvalidDevice,
