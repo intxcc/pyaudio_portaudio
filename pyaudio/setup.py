@@ -78,9 +78,13 @@ if not STATIC_LINKING:
     extra_link_args = []
 else:
     include_dirs = [os.path.join(portaudio_path, 'include/')]
-    extra_link_args = [
-        os.path.join(portaudio_path, 'lib/.libs/libportaudio.a')
-        ]
+    extra_link_args = []
+
+    # check if we are running in a cygwin environment. if not we assume a native windows library in the msvc release path
+    if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
+        extra_link_args.append(os.path.join(portaudio_path, 'lib/.libs/libportaudio.a'))
+    else:
+        extra_link_args.append(os.path.join(portaudio_path, 'build/msvc/x64/Release/portaudio.lib'))
 
     # platform specific configuration
     if sys.platform == 'darwin':
@@ -94,8 +98,12 @@ else:
     elif sys.platform == 'win32':
         # i.e., Win32 Python with mingw32
         # run: python setup.py build -cmingw32
-        external_libraries += ["winmm","ole32","uuid"]
-        extra_link_args += ["-lwinmm","-lole32","-luuid"]
+        if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
+            external_libraries += ["winmm","ole32","uuid"]
+            extra_link_args += ["-lwinmm","-lole32","-luuid"]
+        else:
+            external_libraries += ["winmm","ole32","uuid","advapi32","user32"]
+
     elif sys.platform == 'linux2':
         extra_link_args += ['-lrt', '-lm', '-lpthread']
         # GNU/Linux has several audio systems (backends) available; be

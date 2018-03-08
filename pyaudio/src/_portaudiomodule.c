@@ -38,12 +38,14 @@
 #define DEFAULT_FRAMES_PER_BUFFER 1024
 /* #define VERBOSE */
 
+#ifndef _MSC_VER
 #define min(a, b)           \
   ({                        \
     __typeof__(a) _a = (a); \
     __typeof__(b) _b = (b); \
     _a < _b ? _a : _b;      \
   })
+#endif
 
 /************************************************************
  *
