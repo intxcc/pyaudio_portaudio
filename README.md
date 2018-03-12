@@ -30,10 +30,12 @@ I will try to rebuild the project on each update from one of the used projects.
 
 # How to build?
 
+## Cygwin
+
 You will need a working cygwin installation with basic developer tools and python.
 
 #### 1.
-Change to /pyaudio/portaudio-v19 and type
+Change to */pyaudio/portaudio-v19* and type
 ```bash
 ./configure --with-winapi=wasapi --enable-static=yes --enable-shared=no
 make loopback
@@ -49,6 +51,35 @@ make loopback
 Change to /pyaudio and type
 ```bash
 python setup.py install --static-link
+```
+
+## Microsoft Visual Studio (2017)
+
+You will need to include the python executable in PATH.
+
+#### 1.
+
+Open the portstudio project located in *pyaudio\portaudio-v19\build\msvc\portaudio.sln*.
+
+#### 2.
+
+Open the project configuration and make sure that the configuration type is set to static library.
+
+#### 3.
+
+Select the build type __Release__ and __x64__. Then build the project.
+
+#### 4.
+
+Make sure the build was succesful and the file *pyaudio\portaudio-v19\build\msvc\x64\Release\portaudio.lib* does exist.
+
+#### 5.
+
+Open the PowerShell __as administrator__ and change the directory. Then you can build and install pyaudio with portaudio:
+
+```
+cd <Location of the repository>\pyaudio_portaudio\pyaudio
+python.exe .\setup.py install --static-link
 ```
 
 # Help!!
