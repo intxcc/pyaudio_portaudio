@@ -76,5 +76,11 @@ cd <Location of the repository>\pyaudio_portaudio\pyaudio
 python.exe .\setup.py install --static-link
 ```
 
+## Microsoft Visual Studio (2017) - 32 bit
+
+### For 32-bit support see instructions above and this issue: https://github.com/intxcc/pyaudio_portaudio/issues/8.
+
+### The code from that issue is merged now, but as I do not have a 32-bit version I can't verify it. Comment in the issue for further help.
+
 # Help!!
 If you get errors, let me know. Thank you &hearts;

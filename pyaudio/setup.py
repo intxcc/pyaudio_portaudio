@@ -81,10 +81,14 @@ else:
     extra_link_args = []
 
     # check if we are running in a cygwin environment. if not we assume a native windows library in the msvc release path
+    # To check if we are running on a 32 or 64 bit environment
+    bits = platform.architecture()[0]
     if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
         extra_link_args.append(os.path.join(portaudio_path, 'lib/.libs/libportaudio.a'))
-    else:
+    elif '64' in bits:
         extra_link_args.append(os.path.join(portaudio_path, 'build/msvc/x64/Release/portaudio.lib'))
+    else:
+        extra_link_args.append(os.path.join(portaudio_path, 'build/msvc/Win32/Release/portaudio.lib'))
 
     # platform specific configuration
     if sys.platform == 'darwin':
