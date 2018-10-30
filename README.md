@@ -59,7 +59,7 @@ You will need to include the python executable in PATH.
 
 #### 1.
 
-- Open the portstudio project located in *pyaudio\portaudio-v19\build\msvc\portaudio.sln*.
+- Open the portaudio project located in *pyaudio\portaudio-v19\build\msvc\portaudio.sln*.
 
 - Open the project configuration and make sure that the configuration type is set to static library.
 
