@@ -1,15 +1,22 @@
 import pyaudio
 import wave
-
+import os
 
 defaultframes = 512
 
 class textcolors:
-    blue = '\033[94m'
-    green = '\033[92m'
-    warning = '\033[93m'
-    fail = '\033[91m'
-    end = '\033[0m'
+    if not os.name == 'nt':
+        blue = '\033[94m'
+        green = '\033[92m'
+        warning = '\033[93m'
+        fail = '\033[91m'
+        end = '\033[0m'
+    else:
+        blue = ''
+        green = ''
+        warning = ''
+        fail = ''
+        end = ''
 
 recorded_frames = []
 device_info = {}
