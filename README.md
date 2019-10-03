@@ -34,7 +34,13 @@ I will try to rebuild the project on each update from one of the used projects.
 
 You will need a working cygwin installation with basic developer tools and python.
 
-#### 1.
+#### Step 0
+You might have to change all files to use LF line endings with
+```bash
+find . -type f -exec sed -i 's/\x0d//g' {} \+
+```
+
+#### Step 1
 Change to */pyaudio/portaudio-v19* and type
 ```bash
 ./configure --with-winapi=wasapi --enable-static=yes --enable-shared=no
@@ -47,7 +53,7 @@ make clean
 make loopback
 ```
 
-#### 2.
+#### Step 2
 Change to /pyaudio and type
 ```bash
 python setup.py install --static-link
@@ -57,7 +63,7 @@ python setup.py install --static-link
 
 You will need to include the python executable in PATH.
 
-#### 1.
+#### Step 1
 
 - Open the portaudio project located in *pyaudio\portaudio-v19\build\msvc\portaudio.sln*.
 
@@ -67,7 +73,7 @@ You will need to include the python executable in PATH.
 
 - Make sure the build was succesful and the file *pyaudio\portaudio-v19\build\msvc\x64\Release\portaudio.lib* does exist.
 
-#### 2.
+#### Step 2
 
 Open the PowerShell __as administrator__ and change the directory. Then you can build and install pyaudio with portaudio:
 
