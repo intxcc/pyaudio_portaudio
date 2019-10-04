@@ -139,7 +139,7 @@ static PyMethodDef paMethods[] = {
 
     /* stream read/write */
     {"write_stream", pa_write_stream, METH_VARARGS, "write to stream"},
-    // {"read_stream", pa_read_stream, METH_VARARGS, "read from stream"},
+    {"read_stream", pa_read_stream, METH_VARARGS, "read from stream"},
 
     {"get_stream_write_available", pa_get_stream_write_available, METH_VARARGS,
      "get buffer available for writing"},

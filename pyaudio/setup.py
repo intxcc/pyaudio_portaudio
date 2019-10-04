@@ -56,7 +56,7 @@ portaudio_path = os.environ.get("PORTAUDIO_PATH", "./portaudio-v19")
 mac_sysroot_path = os.environ.get("SYSROOT_PATH", None)
 
 pyaudio_module_sources = ['src/_portaudiomodule.c']
-include_dirs = []
+include_dirs = ['portaudio-v19/include']
 external_libraries = []
 extra_compile_args = []
 extra_link_args = []
@@ -107,6 +107,7 @@ else:
             extra_link_args += ["-lwinmm","-lole32","-luuid"]
         else:
             external_libraries += ["winmm","ole32","uuid","advapi32","user32"]
+            extra_link_args += ["/NODEFAULTLIB:MSVCRT"]
 
     elif sys.platform == 'linux2':
         extra_link_args += ['-lrt', '-lm', '-lpthread']
