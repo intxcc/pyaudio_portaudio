@@ -4003,7 +4003,7 @@ static PaError ReadStream( PaStream* s, void *_buffer, unsigned long frames )
 	BYTE *user_buffer = (BYTE *)_buffer;
 	BYTE *wasapi_buffer = NULL;
 	DWORD flags = 0;
-	UINT32 i, available, sleep = 0;
+	UINT32 i, available, loop_iteration, sleep = 0;
 	unsigned long processed;
 	ThreadIdleScheduler sched;
 
@@ -4092,6 +4092,24 @@ static PaError ReadStream( PaStream* s, void *_buffer, unsigned long frames )
 			return paUnanticipatedHostError;
 		}
 
+		// Fill user buffer with empty frames
+		if (loop_iteration > 100 && available == 0 && stream->in.params.wasapi_params.fillSilence == TRUE)
+		{
+			PaUtilChannelDescriptor* hostOutputChannels;
+
+			for (i = 0; i < stream->bufferProcessor.outputChannelCount; ++i)
+			{
+				stream->bufferProcessor.outputZeroer(
+					(const void**)&user_buffer,
+					hostOutputChannels[i].stride,
+					1
+				);
+			}
+
+			hr = S_OK;
+			goto end;
+		}
+
 		// Wait for more frames to become available
 		if (available == 0)
 		{
@@ -4106,8 +4124,15 @@ static PaError ReadStream( PaStream* s, void *_buffer, unsigned long frames )
 
 				// WASAPI input provides packets, thus expiring packet will result in bad audio
 				// limit waiting time to 2 seconds (will always work for smallest buffer in Shared)
-				if (sleep > 2)
-					sleep = 2;
+				if (stream->in.params.wasapi_params.fillSilence == TRUE) {
+					if (sleep > .05)
+						sleep = .05;
+				}
+				else
+				{
+					if (sleep > 2)
+						sleep = 2;
+				}
 
 				// Avoid busy waiting, schedule next 1 millesecond wait
 				if (sleep == 0)
@@ -4122,6 +4147,7 @@ static PaError ReadStream( PaStream* s, void *_buffer, unsigned long frames )
 				}
 			}
 
+			loop_iteration++;
 			continue;
 		}
 

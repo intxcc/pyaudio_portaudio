@@ -81,7 +81,8 @@ stream = p.open(format = pyaudio.paInt16,
                 input = True,
                 frames_per_buffer = defaultframes,
                 input_device_index = device_info["index"],
-                as_loopback = useloopback)
+                as_loopback = useloopback,
+                wasapi_fill_silence = True)
 
 #Start Recording
 print (textcolors.blue + "Starting..." + textcolors.end)

@@ -1400,7 +1400,7 @@ end:
 
 static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
   int rate, channels;
-  int input, output, frames_per_buffer, as_loopback;
+  int input, output, frames_per_buffer, as_loopback, wasapi_fill_silence;
   int input_device_index = -1;
   int output_device_index = -1;
   PyObject *input_device_index_arg = NULL;
@@ -1429,6 +1429,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                            "output_host_api_specific_stream_info",
                            "stream_callback",
                            "as_loopback",
+                           "wasapi_fill_silence",
                            NULL};
 
 #ifdef MACOSX
@@ -1445,14 +1446,15 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
   input = 0;
   output = 0;
   as_loopback = 0;
+  wasapi_fill_silence = 0;
   frames_per_buffer = DEFAULT_FRAMES_PER_BUFFER;
 
   // clang-format off
   if (!PyArg_ParseTupleAndKeywords(args, kwargs,
 #ifdef MACOSX
-                                   "iik|iiOOiO!O!Oi",
+                                   "iik|iiOOiO!O!Oii",
 #else
-                                   "iik|iiOOiOOOi",
+                                   "iik|iiOOiOOOii",
 #endif
                                    kwlist,
                                    &rate, &channels, &format,
@@ -1468,7 +1470,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
                                    &_pyAudio_MacOSX_hostApiSpecificStreamInfoType,
 #endif
                                    &outputHostSpecificStreamInfo,
-                                   &stream_callback, &as_loopback)) {
+                                   &stream_callback, &as_loopback, &wasapi_fill_silence)) {
 
     return NULL;
   }
@@ -1612,6 +1614,7 @@ static PyObject *pa_open(PyObject *self, PyObject *args, PyObject *kwargs) {
         wasapiInfo->streamFlags = 0;
       }
 
+      wasapiInfo->fillSilence = wasapi_fill_silence;
       wasapiInfo->hostApiType = paWASAPI;
       wasapiInfo->version = 1;
       wasapiInfo->flags = 0;//(paWinWasapiExclusive|paWinWasapiThreadPriority);

@@ -300,7 +300,8 @@ class Stream:
                  input_host_api_specific_stream_info=None,
                  output_host_api_specific_stream_info=None,
                  stream_callback=None,
-                 as_loopback=False):
+                 as_loopback=False,
+                 wasapi_fill_silence=False):
         """
         Initialize a stream; this should be called by
         :py:func:`PyAudio.open`. A stream can either be input, output,
@@ -413,6 +414,7 @@ class Stream:
         self._format = format
         self._frames_per_buffer = frames_per_buffer
         self._as_loopback = as_loopback
+        self._wasapi_fill_silence = wasapi_fill_silence
 
         arguments = {
             'rate' : rate,
@@ -423,7 +425,8 @@ class Stream:
             'input_device_index' : input_device_index,
             'output_device_index' : output_device_index,
             'frames_per_buffer' : frames_per_buffer,
-            'as_loopback' : as_loopback}
+            'as_loopback' : as_loopback,
+            'wasapi_fill_silence' : wasapi_fill_silence}
 
         if input_host_api_specific_stream_info:
             _l = input_host_api_specific_stream_info

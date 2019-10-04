@@ -252,6 +252,8 @@ typedef struct PaWasapiStreamInfo
     unsigned long flags;            /**< collection of PaWasapiFlags */
     unsigned long streamFlags;      /**< collection of PaWasapiFlags */
 
+	int fillSilence; // Fill wasapi stream with silence if no frame is available
+
     /** Support for WAVEFORMATEXTENSIBLE channel masks. If flags contains
        paWinWasapiUseChannelMask this allows you to specify which speakers
        to address in a multichannel stream. Constants for channelMask
