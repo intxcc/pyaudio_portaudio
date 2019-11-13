@@ -13,7 +13,7 @@ This project is a fork of two open source projects. If you'd like, give them som
 
 # Usage
 
-- Install package from the [release section](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/geo-v1)
+- Install package from the [release section](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/full-release)
 - Run a file from [example](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/tree/master/example).
 
 Exactly like the official PyAudio but with the extra option "as_loopback" which expects a boolean.
@@ -25,7 +25,7 @@ stream = p.open([...], as_loopback = True)
 
 # How to install?
 
-### You can find the precompiled ready to use images for windows x64 machine in the [release section ](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/geo-v1).
+### You can find the precompiled ready to use images for windows x64 machine in the [release section ](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/full-release).
 
 --------
 --------
