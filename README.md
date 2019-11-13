@@ -24,11 +24,11 @@ stream = p.open([...], as_loopback = True)
 
 # How to install?
 
-### You can find the precompiled PyAudio build, static linked with PortAudio, as well as only the static linked PortAudio in the [release](https://github.com/intxcc/pyaudio_portaudio/releases).
+### You can find the precompiled ready to use images in [release](https://github.com/intxcc/pyaudio_portaudio/releases).
 
-I will try to rebuild the project on each update from one of the used projects.
 
-# How to build?
+
+# How to build? (go for this method only if you want to build from stratch for respective OS architecture)
 
 ## Cygwin
 
