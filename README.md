@@ -13,7 +13,8 @@ This project is a fork of two open source projects. If you'd like, give them som
 
 # Usage
 
-See the [example](https://github.com/intxcc/pyaudio_portaudio/tree/master/example).
+Install package from the [release section](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/geo-v1)
+Run an file from [example](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/tree/master/example).
 
 Exactly like the official PyAudio but with the extra option "as_loopback" which expects a boolean.
 ```python
@@ -31,7 +32,7 @@ stream = p.open([...], as_loopback = True)
 --------
 
 
-# How to build? (go for this method only if you want to build from stratch for respective OS architecture)
+# How to build? (go for this method only if you want to build from scratch for respective OS architecture)
 
 ## Cygwin
 
