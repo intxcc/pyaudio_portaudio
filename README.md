@@ -24,8 +24,11 @@ stream = p.open([...], as_loopback = True)
 
 # How to install?
 
-### You can find the precompiled ready to use images in [release](https://github.com/intxcc/pyaudio_portaudio/releases).
+### You can find the precompiled ready to use images for windows x64 machine in the [release section ](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/geo-v1).
 
+--------
+--------
+--------
 
 
 # How to build? (go for this method only if you want to build from stratch for respective OS architecture)
