@@ -13,8 +13,8 @@ This project is a fork of two open source projects. If you'd like, give them som
 
 # Usage
 
-Install package from the [release section](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/geo-v1)
-Run an file from [example](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/tree/master/example).
+- Install package from the [release section](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/releases/tag/geo-v1)
+- Run a file from [example](https://github.com/Geo-Joy/pyaudio_portaudio_loopback/tree/master/example).
 
 Exactly like the official PyAudio but with the extra option "as_loopback" which expects a boolean.
 ```python
