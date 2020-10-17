@@ -29,7 +29,10 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 import platform
 import sys
-from setuptools import setup, Extension
+try:
+    from setuptools import setup, Extension
+except ImportError:
+    from distutils.core import setup, Extension
 
 __version__ = '0.2.11'
 
