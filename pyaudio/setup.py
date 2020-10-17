@@ -29,12 +29,9 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 import platform
 import sys
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
-__version__ = "0.2.11"
+__version__ = '0.2.11'
 
 # distutils will try to locate and link dynamically against portaudio.
 #
@@ -46,14 +43,14 @@ __version__ = "0.2.11"
 # Specify the environment variable PORTAUDIO_PATH with the build tree
 # of PortAudio.
 
-STATIC_LINKING = False
-
-if "--static-link" in sys.argv:
+try:
+    sys.argv.remove('--static-link')
     STATIC_LINKING = True
-    sys.argv.remove("--static-link")
+except ValueError:
+    STATIC_LINKING = False
 
-portaudio_path = os.environ.get("PORTAUDIO_PATH", "./portaudio-v19")
-mac_sysroot_path = os.environ.get("SYSROOT_PATH", None)
+portaudio_path = os.environ.get('PORTAUDIO_PATH', './portaudio-v19')
+mac_sysroot_path = os.environ.get('SYSROOT_PATH', None)
 
 pyaudio_module_sources = ['src/_portaudiomodule.c']
 include_dirs = ['portaudio-v19/include']
@@ -62,53 +59,54 @@ extra_compile_args = []
 extra_link_args = []
 scripts = []
 defines = []
+bits = platform.architecture()[0]
+is_64_bit = '64' in bits
 
-if sys.platform == 'darwin':
+if sys.platform == 'win32':
+    if is_64_bit:
+        defines.append(('MS_WIN64', '1'))
+elif sys.platform == 'darwin':  # mac
     defines += [('MACOSX', '1')]
     if mac_sysroot_path:
-        extra_compile_args += ["-isysroot", mac_sysroot_path]
-        extra_link_args += ["-isysroot", mac_sysroot_path]
-elif sys.platform == 'win32':
-    bits = platform.architecture()[0]
-    if '64' in bits:
-        defines.append(('MS_WIN64', '1'))
+        extra_compile_args += ['-isysroot', mac_sysroot_path]
+        extra_link_args += ['-isysroot', mac_sysroot_path]
+
+
+# check if we are running in a cygwin environment. if not we assume a native windows library in the msvc release path
+# To check if we are running on a 32 or 64 bit environment
+if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
+    portaudio_shared = os.path.join(portaudio_path, 'lib/.libs/libportaudio.a')
+elif '64' in bits:
+    portaudio_shared = os.path.join(
+        portaudio_path, 'build/msvc/x64/Release/portaudio.lib')
+else:
+    portaudio_shared = os.path.join(
+        portaudio_path, 'build/msvc/Win32/Release/portaudio_x86.lib')
+extra_link_args.append(portaudio_shared)
 
 if not STATIC_LINKING:
     external_libraries = ['portaudio']
-    extra_link_args = []
 else:
     include_dirs = [os.path.join(portaudio_path, 'include/')]
-    extra_link_args = []
-
-    # check if we are running in a cygwin environment. if not we assume a native windows library in the msvc release path
-    # To check if we are running on a 32 or 64 bit environment
-    bits = platform.architecture()[0]
-    if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
-        extra_link_args.append(os.path.join(portaudio_path, 'lib/.libs/libportaudio.a'))
-    elif '64' in bits:
-        extra_link_args.append(os.path.join(portaudio_path, 'build/msvc/x64/Release/portaudio.lib'))
-    else:
-        extra_link_args.append(os.path.join(portaudio_path, 'build/msvc/Win32/Release/portaudio.lib'))
-
     # platform specific configuration
-    if sys.platform == 'darwin':
+    if sys.platform == 'win32':
+        # i.e., Win32 Python with mingw32
+        # run: python setup.py build -cmingw32
+        if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
+            external_libraries += ['winmm', 'ole32', 'uuid']
+            extra_link_args += ['-lwinmm', '-lole32', '-luuid']
+        else:
+            external_libraries += ['winmm', 'ole32',
+                                   'uuid', 'advapi32', 'user32']
+            extra_link_args += ['/NODEFAULTLIB:MSVCRT /GS-']
+    elif sys.platform == 'darwin':
         extra_link_args += ['-framework', 'CoreAudio',
                             '-framework', 'AudioToolbox',
                             '-framework', 'AudioUnit',
                             '-framework', 'Carbon']
     elif sys.platform == 'cygwin':
-        external_libraries += ["winmm","ole32","uuid"]
-        extra_link_args += ["-lwinmm","-lole32","-luuid"]
-    elif sys.platform == 'win32':
-        # i.e., Win32 Python with mingw32
-        # run: python setup.py build -cmingw32
-        if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
-            external_libraries += ["winmm","ole32","uuid"]
-            extra_link_args += ["-lwinmm","-lole32","-luuid"]
-        else:
-            external_libraries += ["winmm","ole32","uuid","advapi32","user32"]
-            extra_link_args += ["/NODEFAULTLIB:MSVCRT"]
-
+        external_libraries += ["winmm", "ole32", "uuid"]
+        extra_link_args += ["-lwinmm", "-lole32", "-luuid"]
     elif sys.platform == 'linux2':
         extra_link_args += ['-lrt', '-lm', '-lpthread']
         # GNU/Linux has several audio systems (backends) available; be
@@ -118,19 +116,19 @@ else:
 
 setup(name='PyAudio',
       version=__version__,
-      author="Hubert Pham",
-      url="http://people.csail.mit.edu/hubert/pyaudio/",
+      author='Hubert Pham',
+      url='http://people.csail.mit.edu/hubert/pyaudio/',
       description='PortAudio Python Bindings',
       long_description=__doc__.lstrip(),
       scripts=scripts,
       py_modules=['pyaudio'],
       package_dir={'': 'src'},
       ext_modules=[
-    Extension('_portaudio',
-              sources=pyaudio_module_sources,
-              include_dirs=include_dirs,
-              define_macros=defines,
-              libraries=external_libraries,
-              extra_compile_args=extra_compile_args,
-              extra_link_args=extra_link_args)
-    ])
+          Extension('_portaudio',
+                    sources=pyaudio_module_sources,
+                    include_dirs=include_dirs,
+                    define_macros=defines,
+                    libraries=external_libraries,
+                    extra_compile_args=extra_compile_args,
+                    extra_link_args=extra_link_args)
+      ], data_files=[] if is_64_bit else [('', [portaudio_shared[:-3] + 'dll'])])
