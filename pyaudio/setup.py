@@ -62,11 +62,11 @@ extra_compile_args = []
 extra_link_args = []
 scripts = []
 defines = []
-bits = platform.architecture()[0]
-is_64_bit = '64' in bits
+data_files = []  # for dynamic libraries
+is_x64 = '64' in platform.architecture()[0]
 
 if sys.platform == 'win32':
-    if is_64_bit:
+    if is_x64:
         defines.append(('MS_WIN64', '1'))
 elif sys.platform == 'darwin':  # mac
     defines += [('MACOSX', '1')]
@@ -79,16 +79,18 @@ elif sys.platform == 'darwin':  # mac
 # To check if we are running on a 32 or 64 bit environment
 if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
     portaudio_shared = os.path.join(portaudio_path, 'lib/.libs/libportaudio.a')
-elif '64' in bits:
-    portaudio_shared = os.path.join(
-        portaudio_path, 'build/msvc/x64/Release/portaudio.lib')
+elif is_x64:
+    lib_path = 'build/msvc/x64/Release/portaudio.lib'
+    portaudio_shared = os.path.join(portaudio_path, lib_path)
 else:
-    portaudio_shared = os.path.join(
-        portaudio_path, 'build/msvc/Win32/Release/portaudio_x86.lib')
+    lib_path = 'build/msvc/Win32/Release/portaudio.lib'
+    portaudio_shared = os.path.join(portaudio_path, lib_path)
 extra_link_args.append(portaudio_shared)
 
 if not STATIC_LINKING:
-    external_libraries = ['portaudio']
+    external_libraries.append('portaudio')
+    dll_path = 'build/msvc/x64/ReleaseDLL/portaudio_x64.dll' if is_x64 else 'build/msvc/Win32/ReleaseDLL/portaudio_x86.dll'
+    data_files.append(('', [os.path.join(portaudio_path, dll_path)]))
 else:
     include_dirs = [os.path.join(portaudio_path, 'include/')]
     # platform specific configuration
@@ -99,9 +101,8 @@ else:
             external_libraries += ['winmm', 'ole32', 'uuid']
             extra_link_args += ['-lwinmm', '-lole32', '-luuid']
         else:
-            external_libraries += ['winmm', 'ole32',
-                                   'uuid', 'advapi32', 'user32']
-            extra_link_args += ['/NODEFAULTLIB:MSVCRT /GS-']
+            external_libraries += ['winmm', 'ole32', 'uuid', 'advapi32', 'user32']
+            extra_link_args.append('/NODEFAULTLIB:MSVCRT')  # /GS-
     elif sys.platform == 'darwin':
         extra_link_args += ['-framework', 'CoreAudio',
                             '-framework', 'AudioToolbox',
@@ -134,4 +135,4 @@ setup(name='PyAudio',
                     libraries=external_libraries,
                     extra_compile_args=extra_compile_args,
                     extra_link_args=extra_link_args)
-      ], data_files=[] if is_64_bit else [('', [portaudio_shared[:-3] + 'dll'])])
+      ], data_files=data_files)

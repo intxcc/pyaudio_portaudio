@@ -1,0 +1,30 @@
+# This workflow will build the portaudio dll, and then the wheel for each Python version for each architechture
+#  It's a work in progress
+
+name: Python package
+
+on:
+  workflow_dispatch:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: ['Win32', 'x64']  # 32-bit and 64-bit
+        python-version: [3.5, 3.6, 3.7, 3.8]
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1
+   - name: Create wheel
+      run: |
+        cd pyaudio
+        msbuild portaudio-v19/build/msvc/portaudio.sln/portaudio.sln /p:Configuration=ReleaseDLL;Platform=${{ matrix.arch }}
