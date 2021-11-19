@@ -29,6 +29,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 import os
 import platform
 import sys
+from pathlib import Path
 try:
     from setuptools import setup, Extension
 except ImportError:
@@ -52,7 +53,7 @@ try:
 except ValueError:
     STATIC_LINKING = False
 
-portaudio_path = os.environ.get('PORTAUDIO_PATH', './portaudio-v19')
+portaudio_path = Path(os.environ.get('PORTAUDIO_PATH', 'portaudio-v19'))
 mac_sysroot_path = os.environ.get('SYSROOT_PATH', None)
 
 pyaudio_module_sources = ['src/_portaudiomodule.c']
@@ -78,18 +79,18 @@ elif sys.platform == 'darwin':  # mac
 # check if we are running in a cygwin environment. if not we assume a native windows library in the msvc release path
 # To check if we are running on a 32 or 64 bit environment
 if 'ORIGINAL_PATH' in os.environ and 'cygdrive' in os.environ['ORIGINAL_PATH']:
-    portaudio_shared = os.path.join(portaudio_path, 'lib/.libs/libportaudio.a')
+    portaudio_shared = portaudio_path.joinpath('lib/.libs/libportaudio.a')
 elif is_x64:
-    lib_path = 'build/msvc/x64/Release/portaudio.lib'
-    portaudio_shared = os.path.join(portaudio_path, lib_path)
+    lib_path = 'build/msvc/x64/ReleaseDLL/portaudio.lib'
+    portaudio_shared = portaudio_path.joinpath(lib_path)
 else:
-    lib_path = 'build/msvc/Win32/Release/portaudio.lib'
-    portaudio_shared = os.path.join(portaudio_path, lib_path)
-extra_link_args.append(portaudio_shared)
+    lib_path = 'build/msvc/Win32/ReleaseDLL/portaudio.lib'
+    portaudio_shared = portaudio_path.joinpath(lib_path)
+extra_link_args.append(str(portaudio_shared))
 
 if not STATIC_LINKING:
     external_libraries.append('portaudio')
-    dll_path = 'build/msvc/x64/ReleaseDLL/portaudio_x64.dll' if is_x64 else 'build/msvc/Win32/ReleaseDLL/portaudio_x86.dll'
+    dll_path = 'build/msvc/x64/ReleaseDLL/portaudio.dll' if is_x64 else 'build/msvc/Win32/ReleaseDLL/portaudio.dll'
     data_files.append(('', [os.path.join(portaudio_path, dll_path)]))
 else:
     include_dirs = [os.path.join(portaudio_path, 'include/')]
@@ -117,7 +118,6 @@ else:
         # sure to specify the desired ones here.  Start with ALSA and
         # JACK, since that's common today.
         extra_link_args += ['-lasound', '-ljack']
-
 setup(name='PyAudio',
       version=__version__,
       author='Hubert Pham',

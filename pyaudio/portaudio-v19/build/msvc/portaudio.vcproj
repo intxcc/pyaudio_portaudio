@@ -79,13 +79,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ksuser.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x86.dll"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				ModuleDefinitionFile=".\portaudio.def"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)\portaudio_x86.pdb"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio_x86.lib"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)\portaudio.pdb"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -177,13 +177,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ksuser.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x64.dll"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				ModuleDefinitionFile=".\portaudio.def"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/portaudio_x64.pdb"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)/portaudio_x64.lib"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/portaudio.pdb"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)/portaudio.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -198,7 +198,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x64.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -273,13 +273,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies=""
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x86.dll"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\portaudio.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)\portaudio_x86.pdb"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio_x86.lib"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)\portaudio.pdb"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -369,13 +369,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies=""
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x64.dll"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\portaudio.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/portaudio_x64.pdb"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio_x64.lib"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/portaudio.pdb"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -390,7 +390,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)/portaudio_x64.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)/portaudio.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -467,13 +467,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ksuser.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x86.dll"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				ModuleDefinitionFile=".\portaudio.def"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)\portaudio_x86.pdb"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio_x86.lib"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)\portaudio.pdb"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)\portaudio.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -565,13 +565,13 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ksuser.lib"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x64.dll"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
 				ModuleDefinitionFile=".\portaudio.def"
-				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/portaudio_x64.pdb"
-				ImportLibrary="$(PlatformName)\$(ConfigurationName)/portaudio_x64.lib"
+				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/portaudio.pdb"
+				ImportLibrary="$(PlatformName)\$(ConfigurationName)/portaudio.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -586,7 +586,7 @@
 			<Tool
 				Name="VCBscMakeTool"
 				SuppressStartupBanner="true"
-				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio_x64.bsc"
+				OutputFile="$(PlatformName)\$(ConfigurationName)\portaudio.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"

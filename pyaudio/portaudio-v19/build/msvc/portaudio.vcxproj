@@ -215,11 +215,11 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ksuser.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x86.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio_x86.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)\portaudio_x86.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)\portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -260,11 +260,11 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ksuser.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x86.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio_x86.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)\portaudio_x86.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)\portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -304,16 +304,16 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ksuser.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio_x64.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)/portaudio_x64.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)/portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDLL|x64'">
@@ -349,16 +349,16 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ksuser.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio_x64.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)/portaudio_x64.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)/portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -390,12 +390,12 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x86.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio_x86.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)\portaudio_x86.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)\portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -432,17 +432,17 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio_x64.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)\portaudio_x64.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)\portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)/portaudio_x64.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)/portaudio.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseMinDependency|Win32'">
@@ -477,11 +477,11 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ksuser.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x86.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio_x86.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)\portaudio_x86.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)\portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)\portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <Bscmake>
@@ -521,16 +521,16 @@
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>ksuser.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.dll</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <ModuleDefinitionFile>.\portaudio.def</ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio_x64.pdb</ProgramDatabaseFile>
-      <ImportLibrary>$(Platform)\$(Configuration)/portaudio_x64.lib</ImportLibrary>
+      <ProgramDatabaseFile>$(Platform)\$(Configuration)/portaudio.pdb</ProgramDatabaseFile>
+      <ImportLibrary>$(Platform)\$(Configuration)/portaudio.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <OutputFile>$(Platform)\$(Configuration)\portaudio_x64.bsc</OutputFile>
+      <OutputFile>$(Platform)\$(Configuration)\portaudio.bsc</OutputFile>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
