@@ -30,28 +30,19 @@ import os
 import platform
 import sys
 from pathlib import Path
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup, Extension
+import logging
 
-__version__ = '0.2.11'
+from setuptools import setup, Extension
 
-# distutils will try to locate and link dynamically against portaudio.
-#
-# If you would rather statically link in the portaudio library (e.g.,
-# typically on Microsoft Windows), run:
-#
-# % python setup.py build --static-link
-#
-# Specify the environment variable PORTAUDIO_PATH with the build tree
-# of PortAudio.
 
-try:
-    sys.argv.remove('--static-link')
-    STATIC_LINKING = True
-except ValueError:
-    STATIC_LINKING = False
+__version__ = "0.2.14"
+
+# setup.py/setuptools will try to locate and link dynamically against portaudio,
+# except on Windows. On Windows, setup.py will attempt to statically link in
+# portaudio, since most users will install PyAudio from pre-compiled wheels.
+# Optionally specify the environment variable PORTAUDIO_PATH with the build tree of PortAudio.
+
+STATIC_LINKING = sys.platform == 'win32'
 
 portaudio_path = Path(os.environ.get('PORTAUDIO_PATH', 'portaudio-v19'))
 mac_sysroot_path = os.environ.get('SYSROOT_PATH', None)
@@ -64,7 +55,7 @@ extra_link_args = []
 scripts = []
 defines = []
 data_files = []  # for dynamic libraries
-is_x64 = '64' in platform.architecture()[0]
+is_x64 = sys.maxsize > 2**32
 
 if sys.platform == 'win32':
     if is_x64:
@@ -102,8 +93,13 @@ else:
             external_libraries += ['winmm', 'ole32', 'uuid']
             extra_link_args += ['-lwinmm', '-lole32', '-luuid']
         else:
+            # MSVC
+            # TODO: external_libraries += ["user32", "Advapi32"]?
             external_libraries += ['winmm', 'ole32', 'uuid', 'advapi32', 'user32']
-            extra_link_args.append('/NODEFAULTLIB:MSVCRT')  # /GS-
+            # extra_link_args.append('/NODEFAULTLIB:MSVCRT')
+            # disable Buffer Security Checks
+            extra_link_args.append('/GS-')
+            # extra_link_args.append('/MT')
     elif sys.platform == 'darwin':
         extra_link_args += ['-framework', 'CoreAudio',
                             '-framework', 'AudioToolbox',
@@ -122,8 +118,9 @@ setup(name='PyAudio',
       version=__version__,
       author='Hubert Pham',
       url='http://people.csail.mit.edu/hubert/pyaudio/',
-      description='PortAudio Python Bindings',
+      description='Cross-platform audio I/O with PortAudio',
       long_description=__doc__.lstrip(),
+      license='MIT',
       scripts=scripts,
       py_modules=['pyaudio'],
       package_dir={'': 'src'},

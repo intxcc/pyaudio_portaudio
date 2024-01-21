@@ -63,26 +63,27 @@ python setup.py install --static-link
 
 You will need to include the python executable in PATH.
 
-#### Step 1
+### Step 1
 
 - Open the portaudio project located in *pyaudio\portaudio-v19\build\msvc\portaudio.sln*.
-
 - Open the project configuration and make sure that the configuration type is set to static library.
-
 - Select the build type __Release__ and __x64__. Then build the project.
+- Make sure the build was succesful and the file *pyaudio\portaudio-v19\build\msvc\x64\ReleaseDLL\portaudio.lib* does exist.
 
-- Make sure the build was succesful and the file *pyaudio\portaudio-v19\build\msvc\x64\Release\portaudio.lib* does exist.
-
-#### Step 2
+### Step 2
 
 Open the PowerShell __as administrator__ and change the directory. Then you can build and install pyaudio with portaudio:
 
 ```
 cd <Location of the repository>\pyaudio_portaudio\pyaudio
-python.exe .\setup.py install --static-link
 ```
 
-## Microsoft Visual Studio - 32 bit
+- Create wheel: pip wheel . --wheel-dir build
+- Install: python3.12 -m pip install .
+- For <= Python3.10: python3.10 .\setup.py install --static-link
+
+## Microsoft Visual Studio - 32 bit\
+
 1. Open *pyaudio\portaudio-v19\build\msvc\portaudio.sln* in Visual Studio
 2. Select build type __ReleaseDLL__ and __Win32__
 3. Build the project (F6)
@@ -94,6 +95,9 @@ python.exe .\setup.py install --static-link
     ```
     python setup.py bdist_wheel
     ```
+
 For 32-bit support see [this issue](https://github.com/intxcc/pyaudio_portaudio/issues/8)
+
 # Help
+
 If you get errors, let me know. Thank you &hearts;
