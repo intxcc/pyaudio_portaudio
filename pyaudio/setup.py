@@ -79,12 +79,16 @@ else:
     portaudio_shared = portaudio_path.joinpath(lib_path)
 extra_link_args.append(str(portaudio_shared))
 
+external_libraries.append('portaudio')
+library_dirs = []
+lib_path = 'build/msvc/x64/ReleaseDLL' if is_x64 else 'build/msvc/Win32/ReleaseDLL'
+lib_path = os.path.join(portaudio_path, lib_path)
 if not STATIC_LINKING:
-    external_libraries.append('portaudio')
-    dll_path = 'build/msvc/x64/ReleaseDLL/portaudio.dll' if is_x64 else 'build/msvc/Win32/ReleaseDLL/portaudio.dll'
-    data_files.append(('', [os.path.join(portaudio_path, dll_path)]))
+    data_files.append(('', [os.path.join(lib_path, 'portaudio.dll')]))
 else:
+    library_dirs.append(lib_path)
     include_dirs = [os.path.join(portaudio_path, 'include/')]
+    data_files.append((r'Lib\site-packages', [os.path.join(lib_path, 'portaudio.dll')]))
     # platform specific configuration
     if sys.platform == 'win32':
         # i.e., Win32 Python with mingw32
@@ -130,6 +134,7 @@ setup(name='PyAudio',
                     include_dirs=include_dirs,
                     define_macros=defines,
                     libraries=external_libraries,
+                    library_dirs=library_dirs,
                     extra_compile_args=extra_compile_args,
                     extra_link_args=extra_link_args)
       ], data_files=data_files)
