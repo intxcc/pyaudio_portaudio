@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27428.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "portaudio", "portaudio.vcxproj", "{0A18A071-125E-442F-AFF7-A3F68ABECF99}"
 EndProject
@@ -11,6 +11,8 @@ Global
 		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
+		ReleaseDLL|Win32 = ReleaseDLL|Win32
+		ReleaseDLL|x64 = ReleaseDLL|x64
 		ReleaseMinDependency|Win32 = ReleaseMinDependency|Win32
 		ReleaseMinDependency|x64 = ReleaseMinDependency|x64
 	EndGlobalSection
@@ -21,8 +23,12 @@ Global
 		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Debug|x64.Build.0 = Debug|x64
 		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Release|Win32.ActiveCfg = Release|Win32
 		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Release|Win32.Build.0 = Release|Win32
-		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Release|x64.ActiveCfg = Release|x64
-		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Release|x64.Build.0 = Release|x64
+		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Release|x64.ActiveCfg = ReleaseDLL|x64
+		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.Release|x64.Build.0 = ReleaseDLL|x64
+		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseDLL|Win32.ActiveCfg = ReleaseDLL|Win32
+		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseDLL|Win32.Build.0 = ReleaseDLL|Win32
+		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseDLL|x64.ActiveCfg = ReleaseDLL|x64
+		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseDLL|x64.Build.0 = ReleaseDLL|x64
 		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseMinDependency|Win32.ActiveCfg = ReleaseMinDependency|Win32
 		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseMinDependency|Win32.Build.0 = ReleaseMinDependency|Win32
 		{0A18A071-125E-442F-AFF7-A3F68ABECF99}.ReleaseMinDependency|x64.ActiveCfg = ReleaseMinDependency|x64

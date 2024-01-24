@@ -2311,7 +2311,12 @@ init_portaudio(void)
 {
   PyObject *m;
 
-  PyEval_InitThreads();
+  #ifndef Py_PYTHON_H
+    #error Python headers needed to compile C extensions, please install development version of Python.
+  #elif PY_VERSION_HEX < 0x02040000
+    PyEval_InitThreads();
+  #endif
+
 
   _pyAudio_StreamType.tp_new = PyType_GenericNew;
   if (PyType_Ready(&_pyAudio_StreamType) < 0) {
